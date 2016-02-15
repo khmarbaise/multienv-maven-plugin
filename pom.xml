@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
@@ -90,6 +91,11 @@
     <pluginManagement>
       <plugins>
         <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-clean-plugin</artifactId>
+          <version>3.0.0</version>
+        </plugin>
+        <plugin>
           <groupId>org.codehaus.gmaven</groupId>
           <artifactId>gmaven-plugin</artifactId>
           <version>${gmaven-plugin.version}</version>
@@ -115,13 +121,6 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-site-plugin</artifactId>
-          <dependencies>
-            <dependency>
-              <groupId>org.tinyjee.dim</groupId>
-              <artifactId>doxia-include-macro</artifactId>
-              <version>1.1</version>
-            </dependency>
-          </dependencies>
         </plugin>
       </plugins>
     </pluginManagement>
@@ -132,7 +131,7 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-plugin-plugin</artifactId>
         <configuration>
-          <goalPrefix>uptodate</goalPrefix>
+          <goalPrefix>configuration</goalPrefix>
         </configuration>
         <executions>
           <execution>
@@ -329,7 +328,7 @@
                 <mockRepo>
                   <source>src/it-repo</source>
                 </mockRepo>
-                <proxyRepo />
+                <proxyRepo/>
               </repositories>
             </configuration>
           </plugin>
@@ -364,9 +363,9 @@
               <preBuildHookScript>setup</preBuildHookScript>
               <postBuildHookScript>verify</postBuildHookScript>
               <settingsFile>src/it/settings.xml</settingsFile>
-              <!-- Currently working with more than one thread does not work, cause 
-                   it is not guaranteed that the setup-config project is build at first. see 
-                   also http://jira.codehaus.org/browse/MINVOKER-147 -->
+              <!-- Currently working with more than one thread does not work, cause
+                it is not guaranteed that the setup-config project is build at first. see
+                also http://jira.codehaus.org/browse/MINVOKER-147 -->
               <parallelThreads>1</parallelThreads>
               <filterProperties>
                 <repository.proxy.url>${repository.proxy.url}</repository.proxy.url>
@@ -392,7 +391,7 @@
     </profile>
 
     <profile>
-			<!-- mvn -Pgithub site will deploy the site to github site. -->
+      <!-- mvn -Pgithub site will deploy the site to github site. -->
       <id>github</id>
       <activation>
         <activeByDefault>false</activeByDefault>

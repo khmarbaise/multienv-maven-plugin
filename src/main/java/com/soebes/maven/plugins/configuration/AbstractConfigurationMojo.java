@@ -34,7 +34,18 @@ public abstract class AbstractConfigurationMojo
     @Parameter( defaultValue = "${project.build.outputDirectory}", readonly = true )
     private File environment;
 
-    
+    /**
+     * folder which contains the different environments
+     */
+    @Parameter( defaultValue = "${basedir}/src/main/environments" )
+    private File sourceDirectory;
+
+    /**
+     * The character encoding scheme to be applied when filtering resources.
+     */
+    @Parameter( defaultValue = "${project.build.sourceEncoding}" )
+    private String encoding;
+
     @Component
     private MavenProjectHelper projectHelper;
 
@@ -56,6 +67,11 @@ public abstract class AbstractConfigurationMojo
     public MavenProjectHelper getProjectHelper()
     {
         return projectHelper;
+    }
+
+    public File getSourceDirectory()
+    {
+        return sourceDirectory;
     }
 
 }
