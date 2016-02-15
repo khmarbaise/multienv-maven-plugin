@@ -16,7 +16,7 @@ import org.eclipse.aether.resolution.VersionRangeResolutionException;
 import org.eclipse.aether.version.Version;
 import org.testng.annotations.Test;
 
-import com.soebes.maven.plugins.configuration.ParentMojo;
+import com.soebes.maven.plugins.configuration.ConfigurationMojo;
 
 public class ParentMojoTest
     extends TestBase
@@ -26,7 +26,7 @@ public class ParentMojoTest
     public void shouldNotFailCauseNoParentExists()
         throws MojoExecutionException, MojoFailureException, VersionRangeResolutionException
     {
-        ParentMojo mojo = mock( ParentMojo.class );
+        ConfigurationMojo mojo = mock( ConfigurationMojo.class );
         createProjectWithoutParent( mojo );
         doCallRealMethod().when( mojo ).execute();
         mojo.execute();
@@ -37,11 +37,11 @@ public class ParentMojoTest
     public void shouldNotFailCauseParentExistsWithNoNewerVersion()
         throws MojoExecutionException, MojoFailureException, VersionRangeResolutionException
     {
-        ParentMojo mojo = mock( ParentMojo.class );
+        ConfigurationMojo mojo = mock( ConfigurationMojo.class );
         createProjectWithParent( mojo );
 
         List<Version> versionsList = createVersionList( "1.0" );
-        when( mojo.getNewerVersionsOfArtifact( anyString(), anyString(), anyString(), anyString(), anyString() ) ).thenReturn( versionsList );
+//        when( mojo.getNewerVersionsOfArtifact( anyString(), anyString(), anyString(), anyString(), anyString() ) ).thenReturn( versionsList );
 
         doCallRealMethod().when( mojo ).execute();
         mojo.execute();
@@ -52,11 +52,11 @@ public class ParentMojoTest
     public void shouldFailCauseParentExistsWithNewerVersion()
         throws MojoExecutionException, MojoFailureException, VersionRangeResolutionException
     {
-        ParentMojo mojo = mock( ParentMojo.class );
+        ConfigurationMojo mojo = mock( ConfigurationMojo.class );
         createProjectWithParent( mojo );
 
         List<Version> versionsList = createVersionList( "1.0", "1.1" );
-        when( mojo.getNewerVersionsOfArtifact( anyString(), anyString(), anyString(), anyString(), anyString() ) ).thenReturn( versionsList );
+//        when( mojo.getNewerVersionsOfArtifact( anyString(), anyString(), anyString(), anyString(), anyString() ) ).thenReturn( versionsList );
 
         doCallRealMethod().when( mojo ).execute();
         mojo.execute();
@@ -71,14 +71,14 @@ public class ParentMojoTest
         return parentProject;
     }
 
-    private void createProjectWithoutParent( ParentMojo mojo )
+    private void createProjectWithoutParent( ConfigurationMojo mojo )
     {
         MavenProject project = createProject( mojo );
 
         when( project.getParent() ).thenReturn( null );
     }
 
-    private void createProjectWithParent( ParentMojo mojo )
+    private void createProjectWithParent( ConfigurationMojo mojo )
     {
         MavenProject project = createProject( mojo );
 
@@ -86,7 +86,7 @@ public class ParentMojoTest
         when( project.getParent() ).thenReturn( parentProject );
     }
 
-    private MavenProject createProject( ParentMojo mojo )
+    private MavenProject createProject( ConfigurationMojo mojo )
     {
         when( mojo.getLog() ).thenReturn( mock( Log.class ) );
 
