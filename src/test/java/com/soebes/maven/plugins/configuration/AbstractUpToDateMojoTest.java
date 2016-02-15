@@ -1,4 +1,4 @@
-package com.soebes.maven.plugins.uptodate;
+package com.soebes.maven.plugins.configuration;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -15,6 +15,8 @@ import org.eclipse.aether.version.Version;
 import org.mockito.Mockito;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
+
+import com.soebes.maven.plugins.configuration.AbstractUpToDateMojo;
 
 public class AbstractUpToDateMojoTest
     extends TestBase

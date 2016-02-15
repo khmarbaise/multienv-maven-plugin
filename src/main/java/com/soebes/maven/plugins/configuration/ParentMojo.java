@@ -1,4 +1,4 @@
-package com.soebes.maven.plugins.uptodate;
+package com.soebes.maven.plugins.configuration;
 
 import java.util.List;
 

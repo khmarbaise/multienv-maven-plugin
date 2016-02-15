@@ -1,4 +1,4 @@
-package com.soebes.maven.plugins.uptodate;
+package com.soebes.maven.plugins.configuration;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
@@ -19,6 +19,8 @@ import org.assertj.core.util.Lists;
 import org.eclipse.aether.resolution.VersionRangeResolutionException;
 import org.eclipse.aether.version.Version;
 import org.testng.annotations.Test;
+
+import com.soebes.maven.plugins.configuration.DependencyMojo;
 
 public class DependencyMojoTest
     extends TestBase

@@ -1,4 +1,4 @@
-package com.soebes.maven.plugins.uptodate;
+package com.soebes.maven.plugins.configuration;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;

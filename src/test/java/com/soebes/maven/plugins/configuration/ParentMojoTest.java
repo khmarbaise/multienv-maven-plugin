@@ -1,4 +1,4 @@
-package com.soebes.maven.plugins.uptodate;
+package com.soebes.maven.plugins.configuration;
 
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.doCallRealMethod;
@@ -15,6 +15,8 @@ import org.apache.maven.project.MavenProject;
 import org.eclipse.aether.resolution.VersionRangeResolutionException;
 import org.eclipse.aether.version.Version;
 import org.testng.annotations.Test;
+
+import com.soebes.maven.plugins.configuration.ParentMojo;
 
 public class ParentMojoTest
     extends TestBase
