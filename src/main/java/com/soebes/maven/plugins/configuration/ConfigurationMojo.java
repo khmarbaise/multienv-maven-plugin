@@ -1,12 +1,12 @@
 package com.soebes.maven.plugins.configuration;
 
+import javax.inject.Inject;
+
 import org.apache.maven.archiver.MavenArchiver;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
-import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
-import org.codehaus.plexus.archiver.Archiver;
 import org.codehaus.plexus.util.DirectoryScanner;
 
 /**
@@ -20,7 +20,8 @@ public class ConfigurationMojo
     extends AbstractConfigurationMojo
 {
 
-    @Component( role = Archiver.class, hint = "jar" )
+//    @Component( role = Archiver.class, hint = "jar" )
+    @Inject
     private MavenArchiver archiver;
 
     public void execute()
