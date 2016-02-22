@@ -1,12 +1,20 @@
 package com.soebes.maven.plugins.configuration;
 
+import java.io.File;
+import java.io.IOException;
+
 import javax.inject.Inject;
 
+import org.apache.maven.archiver.MavenArchiveConfiguration;
 import org.apache.maven.archiver.MavenArchiver;
+import org.apache.maven.artifact.DependencyResolutionRequiredException;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
+import org.codehaus.plexus.archiver.ArchiverException;
+import org.codehaus.plexus.archiver.jar.JarArchiver;
+import org.codehaus.plexus.archiver.jar.ManifestException;
 import org.codehaus.plexus.util.DirectoryScanner;
 
 /**
@@ -20,9 +28,12 @@ public class ConfigurationMojo
     extends AbstractConfigurationMojo
 {
 
-//    @Component( role = Archiver.class, hint = "jar" )
+    // @Component( role = Archiver.class, hint = "jar" )
     @Inject
-    private MavenArchiver archiver;
+    private JarArchiver zipArchiver;
+
+    @Inject
+    private MavenArchiveConfiguration configuration;
 
     public void execute()
         throws MojoExecutionException, MojoFailureException
@@ -38,6 +49,22 @@ public class ConfigurationMojo
         for ( String folder : includedDirectories )
         {
             getLog().info( "Environment Folder: '" + folder + "'" );
+        }
+
+        zipArchiver.addDirectory( new File(getSourceDirectory(), includedDirectories[1]) );
+        
+        MavenArchiver archiver = new MavenArchiver();
+        archiver.setArchiver( zipArchiver );
+        File zipFile = new File( getOutputDirectory(), "result.zip" );
+        archiver.setOutputFile( zipFile );
+        try
+        {
+            archiver.createArchive( getMavenSession(), getMavenProject(), configuration );
+        }
+        catch ( ArchiverException | ManifestException | IOException | DependencyResolutionRequiredException e )
+        {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
         }
     }
 
