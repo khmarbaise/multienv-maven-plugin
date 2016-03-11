@@ -33,7 +33,7 @@ public class ConfigurationMojo
     {
         DirectoryScanner ds = new DirectoryScanner();
         ds.setBasedir( getSourceDirectory() );
-        ds.setExcludes( new String[] { "." } );
+        ds.setExcludes( new String[] { ".", "" } );
         ds.addDefaultExcludes();
 
         ds.scan();
