@@ -3,18 +3,15 @@ package com.soebes.maven.plugins.configuration;
 import java.io.File;
 import java.io.IOException;
 
-import javax.inject.Inject;
-
-import org.apache.maven.archiver.MavenArchiveConfiguration;
-import org.apache.maven.archiver.MavenArchiver;
-import org.apache.maven.artifact.DependencyResolutionRequiredException;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
+import org.codehaus.plexus.archiver.Archiver;
 import org.codehaus.plexus.archiver.ArchiverException;
-import org.codehaus.plexus.archiver.jar.JarArchiver;
-import org.codehaus.plexus.archiver.jar.ManifestException;
+import org.codehaus.plexus.archiver.manager.ArchiverManager;
+import org.codehaus.plexus.archiver.manager.NoSuchArchiverException;
 import org.codehaus.plexus.util.DirectoryScanner;
 
 /**
@@ -28,12 +25,8 @@ public class ConfigurationMojo
     extends AbstractConfigurationMojo
 {
 
-    // @Component( role = Archiver.class, hint = "jar" )
-    @Inject
-    private JarArchiver zipArchiver;
-
-    @Inject
-    private MavenArchiveConfiguration configuration;
+    @Component
+    private ArchiverManager manager;
 
     public void execute()
         throws MojoExecutionException, MojoFailureException
@@ -49,23 +42,48 @@ public class ConfigurationMojo
         for ( String folder : includedDirectories )
         {
             getLog().info( "Environment Folder: '" + folder + "'" );
+
+            // FIXME: Why do we get "" ?
+            if ( !folder.isEmpty() )
+            {
+
+                try
+                {
+                    createArchiveFile( folder );
+                }
+                catch ( NoSuchArchiverException e )
+                {
+                    e.printStackTrace();
+                }
+                catch ( IOException e )
+                {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+            }
         }
 
-        zipArchiver.addDirectory( new File(getSourceDirectory(), includedDirectories[1]) );
-        
-        MavenArchiver archiver = new MavenArchiver();
-        archiver.setArchiver( zipArchiver );
-        File zipFile = new File( getOutputDirectory(), "result.zip" );
-        archiver.setOutputFile( zipFile );
+    }
+
+    private void createArchiveFile( String includes )
+        throws NoSuchArchiverException, IOException
+    {
         try
         {
-            archiver.createArchive( getMavenSession(), getMavenProject(), configuration );
+            Archiver zipArchiver = manager.getArchiver( "zip" );
+
+            zipArchiver.addDirectory( new File( getSourceDirectory(), includes ) );
+
+            File zipFile = new File( getOutputDirectory(), includes + "-result.zip" );
+            zipArchiver.setDestFile( zipFile );
+            
+            zipArchiver.createArchive();
         }
-        catch ( ArchiverException | ManifestException | IOException | DependencyResolutionRequiredException e )
+        catch ( ArchiverException e )
         {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
-    }
 
+    }
 }
