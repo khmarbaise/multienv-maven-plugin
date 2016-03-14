@@ -10,6 +10,7 @@ import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.codehaus.plexus.archiver.Archiver;
 import org.codehaus.plexus.archiver.ArchiverException;
+import org.codehaus.plexus.archiver.FileSet;
 import org.codehaus.plexus.archiver.manager.ArchiverManager;
 import org.codehaus.plexus.archiver.manager.NoSuchArchiverException;
 import org.codehaus.plexus.util.DirectoryScanner;
@@ -50,6 +51,7 @@ public class ConfigurationMojo
                 try
                 {
                     createArchiveFile( folder );
+                    createGZIPArchive( folder );
                 }
                 catch ( NoSuchArchiverException e )
                 {
@@ -65,6 +67,28 @@ public class ConfigurationMojo
 
     }
 
+    private void createGZIPArchive( String includes )
+        throws IOException, NoSuchArchiverException
+    {
+        try
+        {
+            File baseFolder = new File (getSourceDirectory(), includes);
+            File theOriginalFile = new File( baseFolder, "first.properties" );
+            Archiver gzipArchiver = manager.getArchiver( "gzip" );
+            
+            gzipArchiver.addFile( theOriginalFile, "first.properties.gz" );
+
+            gzipArchiver.setDestFile( new File(baseFolder, "first.properties.gz") );
+            gzipArchiver.createArchive();
+        }
+        catch ( ArchiverException e )
+        {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+
+    }
+
     private void createArchiveFile( String includes )
         throws NoSuchArchiverException, IOException
     {
@@ -76,7 +100,7 @@ public class ConfigurationMojo
 
             File zipFile = new File( getOutputDirectory(), includes + "-result.zip" );
             zipArchiver.setDestFile( zipFile );
-            
+
             zipArchiver.createArchive();
         }
         catch ( ArchiverException e )
