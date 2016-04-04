@@ -2,6 +2,7 @@ package com.soebes.maven.plugins.configuration;
 
 import java.io.File;
 
+import org.apache.maven.archiver.MavenArchiveConfiguration;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugins.annotations.Component;
@@ -49,7 +50,19 @@ public abstract class AbstractConfigurationMojo
     @Component
     private MavenProjectHelper projectHelper;
 
-    public MavenProject getMavenProject()
+    /**
+     * The archive configuration to use. See <a href="http://maven.apache.org/shared/maven-archiver/index.html">Maven
+     * Archiver Reference</a>.
+     */
+    @Parameter
+    private MavenArchiveConfiguration archive = new MavenArchiveConfiguration();
+
+    public MavenArchiveConfiguration getArchive()
+	{
+		return archive;
+	}
+
+	public MavenProject getMavenProject()
     {
         return mavenProject;
     }

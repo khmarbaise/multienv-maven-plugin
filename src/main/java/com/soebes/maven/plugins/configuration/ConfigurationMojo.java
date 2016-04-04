@@ -3,6 +3,8 @@ package com.soebes.maven.plugins.configuration;
 import java.io.File;
 import java.io.IOException;
 
+import org.apache.maven.archiver.MavenArchiver;
+import org.apache.maven.artifact.DependencyResolutionRequiredException;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Component;
@@ -10,6 +12,8 @@ import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.codehaus.plexus.archiver.Archiver;
 import org.codehaus.plexus.archiver.ArchiverException;
+import org.codehaus.plexus.archiver.jar.JarArchiver;
+import org.codehaus.plexus.archiver.jar.ManifestException;
 import org.codehaus.plexus.archiver.manager.ArchiverManager;
 import org.codehaus.plexus.archiver.manager.NoSuchArchiverException;
 import org.codehaus.plexus.archiver.util.DefaultFileSet;
@@ -25,6 +29,12 @@ import org.codehaus.plexus.util.DirectoryScanner;
 public class ConfigurationMojo
 	extends AbstractConfigurationMojo
 {
+
+	/**
+	 * The JAR archiver needed for archiving the classes directory into a JAR file under WEB-INF/lib.
+	 */
+	@Component( role = Archiver.class, hint = "jar" )
+	private JarArchiver jarArchiver;
 
 	@Component
 	private ArchiverManager manager;
@@ -51,7 +61,7 @@ public class ConfigurationMojo
 				try
 				{
 					createArchiveFile( folder );
-//					createGZIPArchive( folder );
+					// createGZIPArchive( folder );
 				}
 				catch ( NoSuchArchiverException e )
 				{
@@ -92,18 +102,27 @@ public class ConfigurationMojo
 	{
 		try
 		{
-			Archiver zipArchiver = manager.getArchiver( "jar" );
+			final MavenArchiver mavenArchiver = new MavenArchiver();
 
-			zipArchiver.addFileSet( new DefaultFileSet( new File( getSourceDirectory(), includes ) ) );
+			mavenArchiver.setArchiver( jarArchiver );
+			jarArchiver.addFileSet( new DefaultFileSet( new File( getSourceDirectory(), includes ) ) );
 
 			File zipFile = new File( getOutputDirectory(), includes + "-result.jar" );
-			zipArchiver.setDestFile( zipFile );
+			mavenArchiver.setOutputFile( zipFile );
 
-			zipArchiver.createArchive();
+			mavenArchiver.createArchive( getMavenSession(), getMavenProject(), getArchive() );
 		}
 		catch ( ArchiverException e )
 		{
 			getLog().error( "Archiver could not created.", e );
+		}
+		catch ( ManifestException e )
+		{
+			getLog().error( "Manifest Exception.", e );
+		}
+		catch ( DependencyResolutionRequiredException e )
+		{
+			getLog().error( "DependencyResolutionRequiredException:", e );
 		}
 
 	}
