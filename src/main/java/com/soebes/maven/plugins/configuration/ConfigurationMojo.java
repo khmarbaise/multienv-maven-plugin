@@ -12,6 +12,7 @@ import org.codehaus.plexus.archiver.Archiver;
 import org.codehaus.plexus.archiver.ArchiverException;
 import org.codehaus.plexus.archiver.manager.ArchiverManager;
 import org.codehaus.plexus.archiver.manager.NoSuchArchiverException;
+import org.codehaus.plexus.archiver.util.DefaultFileSet;
 import org.codehaus.plexus.util.DirectoryScanner;
 
 /**
@@ -50,7 +51,7 @@ public class ConfigurationMojo
 				try
 				{
 					createArchiveFile( folder );
-					createGZIPArchive( folder );
+//					createGZIPArchive( folder );
 				}
 				catch ( NoSuchArchiverException e )
 				{
@@ -91,11 +92,11 @@ public class ConfigurationMojo
 	{
 		try
 		{
-			Archiver zipArchiver = manager.getArchiver( "zip" );
+			Archiver zipArchiver = manager.getArchiver( "jar" );
 
-			zipArchiver.addDirectory( new File( getSourceDirectory(), includes ) );
+			zipArchiver.addFileSet( new DefaultFileSet( new File( getSourceDirectory(), includes ) ) );
 
-			File zipFile = new File( getOutputDirectory(), includes + "-result.zip" );
+			File zipFile = new File( getOutputDirectory(), includes + "-result.jar" );
 			zipArchiver.setDestFile( zipFile );
 
 			zipArchiver.createArchive();
