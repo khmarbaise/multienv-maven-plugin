@@ -31,7 +31,7 @@ public class ConfigurationMojo
 {
 
 	/**
-	 * The JAR archiver needed for archiving the classes directory into a JAR file under WEB-INF/lib.
+	 * The JAR archiver needed for archiving the environments.
 	 */
 	@Component( role = Archiver.class, hint = "jar" )
 	private JarArchiver jarArchiver;
