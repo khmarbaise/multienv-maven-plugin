@@ -22,91 +22,88 @@ import org.codehaus.plexus.util.DirectoryScanner;
  */
 @Mojo( name = "configuration", defaultPhase = LifecyclePhase.PACKAGE, requiresProject = true, threadSafe = true )
 public class ConfigurationMojo
-    extends AbstractConfigurationMojo
+	extends AbstractConfigurationMojo
 {
 
-    @Component
-    private ArchiverManager manager;
+	@Component
+	private ArchiverManager manager;
 
-    public void execute()
-        throws MojoExecutionException, MojoFailureException
-    {
-        DirectoryScanner ds = new DirectoryScanner();
-        ds.setBasedir( getSourceDirectory() );
-        ds.setExcludes( new String[] { ".", "" } ); // Work a round ?
-        ds.addDefaultExcludes();
+	public void execute()
+		throws MojoExecutionException, MojoFailureException
+	{
+		DirectoryScanner ds = new DirectoryScanner();
+		ds.setBasedir( getSourceDirectory() );
+		ds.setExcludes( new String[] { ".", "" } ); // Work a round ?
+		ds.addDefaultExcludes();
 
-        ds.scan();
+		ds.scan();
 
-        String[] includedDirectories = ds.getIncludedDirectories();
-        for ( String folder : includedDirectories )
-        {
-            getLog().info( "Environment Folder: '" + folder + "'" );
+		String[] includedDirectories = ds.getIncludedDirectories();
+		for ( String folder : includedDirectories )
+		{
+			getLog().info( "Environment Folder: '" + folder + "'" );
 
-            // FIXME: Why do we get "" ?
-            if ( !folder.isEmpty() )
-            {
+			// FIXME: Why do we get "" ?
+			if ( !folder.isEmpty() )
+			{
 
-                try
-                {
-                    createArchiveFile( folder );
-                    createGZIPArchive( folder );
-                }
-                catch ( NoSuchArchiverException e )
-                {
-                    e.printStackTrace();
-                }
-                catch ( IOException e )
-                {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
-            }
-        }
+				try
+				{
+					createArchiveFile( folder );
+					createGZIPArchive( folder );
+				}
+				catch ( NoSuchArchiverException e )
+				{
+					getLog().error( "Archive creation failed.", e );
+				}
+				catch ( IOException e )
+				{
+					getLog().error( "IO Exception.", e );
+				}
+			}
+		}
 
-    }
+	}
 
-    private void createGZIPArchive( String includes )
-        throws IOException, NoSuchArchiverException
-    {
-        try
-        {
-            File baseFolder = new File (getSourceDirectory(), includes);
-            File theOriginalFile = new File( baseFolder, "first.properties" );
-            Archiver gzipArchiver = manager.getArchiver( "gzip" );
-            
-            gzipArchiver.addFile( theOriginalFile, "first.properties.gz" );
+	private void createGZIPArchive( String includes )
+		throws IOException, NoSuchArchiverException
+	{
+		try
+		{
+			File baseFolder = new File( getSourceDirectory(), includes );
+			File theOriginalFile = new File( baseFolder, "first.properties" );
+			Archiver gzipArchiver = manager.getArchiver( "gzip" );
 
-            gzipArchiver.setDestFile( new File(baseFolder, "first.properties.gz") );
-            gzipArchiver.createArchive();
-        }
-        catch ( ArchiverException e )
-        {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
+			gzipArchiver.addFile( theOriginalFile, "first.properties.gz" );
 
-    }
+			gzipArchiver.setDestFile( new File( baseFolder, "first.properties.gz" ) );
+			gzipArchiver.createArchive();
+		}
+		catch ( ArchiverException e )
+		{
+			getLog().error( "Archive creation failed.", e );
+		}
 
-    private void createArchiveFile( String includes )
-        throws NoSuchArchiverException, IOException
-    {
-        try
-        {
-            Archiver zipArchiver = manager.getArchiver( "zip" );
+	}
 
-            zipArchiver.addDirectory( new File( getSourceDirectory(), includes ) );
+	private void createArchiveFile( String includes )
+		throws NoSuchArchiverException, IOException
+	{
+		try
+		{
+			Archiver zipArchiver = manager.getArchiver( "zip" );
 
-            File zipFile = new File( getOutputDirectory(), includes + "-result.zip" );
-            zipArchiver.setDestFile( zipFile );
+			zipArchiver.addDirectory( new File( getSourceDirectory(), includes ) );
 
-            zipArchiver.createArchive();
-        }
-        catch ( ArchiverException e )
-        {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
+			File zipFile = new File( getOutputDirectory(), includes + "-result.zip" );
+			zipArchiver.setDestFile( zipFile );
 
-    }
+			zipArchiver.createArchive();
+		}
+		catch ( ArchiverException e )
+		{
+			getLog().error( "Archiver could not created.", e );
+		}
+
+	}
 }
