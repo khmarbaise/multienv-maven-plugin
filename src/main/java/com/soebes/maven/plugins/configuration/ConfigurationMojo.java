@@ -97,7 +97,7 @@ public class ConfigurationMojo
 
 	}
 
-	private void createArchiveFile( String includes )
+	private void createArchiveFile( String folder )
 		throws NoSuchArchiverException, IOException
 	{
 		try
@@ -105,11 +105,10 @@ public class ConfigurationMojo
 			final MavenArchiver mavenArchiver = new MavenArchiver();
 
 			mavenArchiver.setArchiver( jarArchiver );
-			jarArchiver.addFileSet( new DefaultFileSet( new File( getSourceDirectory(), includes ) ) );
+			jarArchiver.addFileSet( new DefaultFileSet( new File( getSourceDirectory(), folder ) ) );
 
-			File zipFile = new File( getOutputDirectory(), includes + "-result.jar" );
+			File zipFile = new File( getOutputDirectory(), folder + "-result.jar" );
 			mavenArchiver.setOutputFile( zipFile );
-
 			mavenArchiver.createArchive( getMavenSession(), getMavenProject(), getArchive() );
 		}
 		catch ( ArchiverException e )
