@@ -35,6 +35,7 @@ under the License.
   <groupId>com.soebes.maven.plugins.configuration.test.integration</groupId>
   <artifactId>basic-test</artifactId>
   <version>0.1-SNAPSHOT</version>
+  <packaging>war</packaging>
 
   <name>configuration-maven-plugin BasicTest</name>
 
@@ -47,6 +48,17 @@ under the License.
   </dependencies>
 
   <build>
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-war-plugin</artifactId>
+          <configuration>
+            <failOnMissingWebXml>false</failOnMissingWebXml>
+          </configuration>
+        </plugin>
+      </plugins>
+    </pluginManagement>
     <plugins>
       <!-- START SNIPPET: start -->
       <plugin>

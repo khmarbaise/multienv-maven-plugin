@@ -18,8 +18,8 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
 
- 
-  <dependencyManagement> 
+
+  <dependencyManagement>
     <dependencies>
       <dependency>
         <groupId>junit</groupId>
@@ -39,7 +39,7 @@
         <version>1.2.16</version>
       </dependency>
     </dependencies>
-  </dependencyManagement> 
+  </dependencyManagement>
 
   <build>
     <pluginManagement>
@@ -76,13 +76,13 @@
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-install-plugin</artifactId>
-          <version>2.5.2</version>
+          <artifactId>maven-war-plugin</artifactId>
+          <version>2.6</version>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-war-plugin</artifactId>
-          <version>2.6</version>
+          <artifactId>maven-install-plugin</artifactId>
+          <version>2.5.2</version>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>

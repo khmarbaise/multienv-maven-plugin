@@ -32,9 +32,6 @@ public abstract class AbstractConfigurationMojo
     @Parameter( defaultValue = "${project.build.directory}", required = true )
     private String outputDirectory;
 
-    @Parameter( defaultValue = "${project.build.outputDirectory}", readonly = true )
-    private File environment;
-
     /**
      * folder which contains the different environments
      */

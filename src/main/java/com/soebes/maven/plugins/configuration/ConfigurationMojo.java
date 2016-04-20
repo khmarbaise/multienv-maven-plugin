@@ -12,6 +12,7 @@ import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.codehaus.plexus.archiver.Archiver;
 import org.codehaus.plexus.archiver.ArchiverException;
+import org.codehaus.plexus.archiver.UnArchiver;
 import org.codehaus.plexus.archiver.jar.JarArchiver;
 import org.codehaus.plexus.archiver.jar.ManifestException;
 import org.codehaus.plexus.archiver.manager.ArchiverManager;
@@ -35,6 +36,9 @@ public class ConfigurationMojo
 	 */
 	@Component( role = Archiver.class, hint = "jar" )
 	private JarArchiver jarArchiver;
+	
+    @Component( role = UnArchiver.class, hint = "war" )
+	private UnArchiver unArchiver;
 
 	@Component
 	private ArchiverManager manager;
@@ -42,6 +46,12 @@ public class ConfigurationMojo
 	public void execute()
 		throws MojoExecutionException, MojoFailureException
 	{
+	    
+	    File unpackFolder = new File(getOutputDirectory(), "unpack");
+	    unpackFolder.mkdirs();
+	    
+	    unarchiveFile( getMavenProject().getArtifact().getFile(), unpackFolder );
+	    
 		DirectoryScanner ds = new DirectoryScanner();
 		ds.setBasedir( getSourceDirectory() );
 		ds.setExcludes( new String[] { ".", "" } ); // Work a round ?
@@ -95,6 +105,15 @@ public class ConfigurationMojo
 			getLog().error( "Archive creation failed.", e );
 		}
 
+	}
+
+	private void unarchiveFile ( File sourceFile, File destDirectory ) {
+        unArchiver.setSourceFile( sourceFile );
+        unArchiver.setUseJvmChmod( true);
+        unArchiver.setDestDirectory( destDirectory );
+        unArchiver.setOverwrite( true );
+        unArchiver.extract();
+	    
 	}
 
 	private void createArchiveFile( String folder )
