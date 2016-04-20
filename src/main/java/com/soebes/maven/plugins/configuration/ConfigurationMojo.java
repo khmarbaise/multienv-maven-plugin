@@ -3,6 +3,7 @@ package com.soebes.maven.plugins.configuration;
 import java.io.File;
 import java.io.IOException;
 
+import org.apache.maven.MavenExecutionException;
 import org.apache.maven.archiver.MavenArchiver;
 import org.apache.maven.artifact.DependencyResolutionRequiredException;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -28,120 +29,161 @@ import org.codehaus.plexus.util.DirectoryScanner;
  */
 @Mojo( name = "configuration", defaultPhase = LifecyclePhase.PACKAGE, requiresProject = true, threadSafe = true )
 public class ConfigurationMojo
-	extends AbstractConfigurationMojo
+    extends AbstractConfigurationMojo
 {
 
-	/**
-	 * The JAR archiver needed for archiving the environments.
-	 */
-	@Component( role = Archiver.class, hint = "jar" )
-	private JarArchiver jarArchiver;
-	
+    /**
+     * The JAR archiver needed for archiving the environments.
+     */
+    @Component( role = Archiver.class, hint = "jar" )
+    private JarArchiver jarArchiver;
+
     @Component( role = UnArchiver.class, hint = "war" )
-	private UnArchiver unArchiver;
+    private UnArchiver unArchiver;
 
-	@Component
-	private ArchiverManager manager;
+    @Component
+    private ArchiverManager manager;
 
-	public void execute()
-		throws MojoExecutionException, MojoFailureException
-	{
-	    
-	    File unpackFolder = new File(getOutputDirectory(), "unpack");
-	    unpackFolder.mkdirs();
-	    
-	    unarchiveFile( getMavenProject().getArtifact().getFile(), unpackFolder );
-	    
-		DirectoryScanner ds = new DirectoryScanner();
-		ds.setBasedir( getSourceDirectory() );
-		ds.setExcludes( new String[] { ".", "" } ); // Work a round ?
-		ds.addDefaultExcludes();
+    public void execute()
+        throws MojoExecutionException, MojoFailureException
+    {
 
-		ds.scan();
+        File unpackFolder = new File( getOutputDirectory(), "unpack" );
+        unpackFolder.mkdirs();
 
-		String[] includedDirectories = ds.getIncludedDirectories();
-		for ( String folder : includedDirectories )
-		{
-			getLog().info( "Environment Folder: '" + folder + "'" );
+        unarchiveFile( getMavenProject().getArtifact().getFile(), unpackFolder );
 
-			// FIXME: Why do we get "" ?
-			if ( !folder.isEmpty() )
-			{
+        DirectoryScanner ds = new DirectoryScanner();
+        ds.setBasedir( getSourceDirectory() );
+        ds.setExcludes( new String[] { ".", "" } ); // Work a round ?
+        ds.addDefaultExcludes();
 
-				try
-				{
-					createArchiveFile( folder );
-					// createGZIPArchive( folder );
-				}
-				catch ( NoSuchArchiverException e )
-				{
-					getLog().error( "Archive creation failed.", e );
-				}
-				catch ( IOException e )
-				{
-					getLog().error( "IO Exception.", e );
-				}
-			}
-		}
+        ds.scan();
 
-	}
+        String[] includedDirectories = ds.getIncludedDirectories();
+        for ( String folder : includedDirectories )
+        {
+            getLog().info( "Environment Folder: '" + folder + "'" );
 
-	private void createGZIPArchive( String includes )
-		throws IOException, NoSuchArchiverException
-	{
-		try
-		{
-			File baseFolder = new File( getSourceDirectory(), includes );
-			File theOriginalFile = new File( baseFolder, "first.properties" );
-			Archiver gzipArchiver = manager.getArchiver( "gzip" );
+            // FIXME: Why do we get "" ?
+            if ( !folder.isEmpty() )
+            {
 
-			gzipArchiver.addFile( theOriginalFile, "first.properties.gz" );
+                try
+                {
+                    File createArchiveFile = createArchiveFile( folder );
+                    getProjectHelper().attachArtifact( getMavenProject(), "war", folder, createArchiveFile );
 
-			gzipArchiver.setDestFile( new File( baseFolder, "first.properties.gz" ) );
-			gzipArchiver.createArchive();
-		}
-		catch ( ArchiverException e )
-		{
-			getLog().error( "Archive creation failed.", e );
-		}
+                    // createGZIPArchive( folder );
+                }
+                catch ( NoSuchArchiverException e )
+                {
+                    getLog().error( "Archive creation failed.", e );
+                }
+                catch ( IOException e )
+                {
+                    getLog().error( "IO Exception.", e );
+                }
+            }
+        }
 
-	}
+    }
 
-	private void unarchiveFile ( File sourceFile, File destDirectory ) {
+    private void createGZIPArchive( String includes )
+        throws IOException, NoSuchArchiverException
+    {
+        try
+        {
+            File baseFolder = new File( getSourceDirectory(), includes );
+            File theOriginalFile = new File( baseFolder, "first.properties" );
+            Archiver gzipArchiver = manager.getArchiver( "gzip" );
+
+            gzipArchiver.addFile( theOriginalFile, "first.properties.gz" );
+
+            gzipArchiver.setDestFile( new File( baseFolder, "first.properties.gz" ) );
+            gzipArchiver.createArchive();
+        }
+        catch ( ArchiverException e )
+        {
+            getLog().error( "Archive creation failed.", e );
+        }
+
+    }
+
+    private void unarchiveFile( File sourceFile, File destDirectory )
+    {
         unArchiver.setSourceFile( sourceFile );
-        unArchiver.setUseJvmChmod( true);
+        unArchiver.setUseJvmChmod( true );
         unArchiver.setDestDirectory( destDirectory );
         unArchiver.setOverwrite( true );
         unArchiver.extract();
-	    
-	}
 
-	private void createArchiveFile( String folder )
-		throws NoSuchArchiverException, IOException
-	{
-		try
-		{
-			final MavenArchiver mavenArchiver = new MavenArchiver();
+    }
 
-			mavenArchiver.setArchiver( jarArchiver );
-			jarArchiver.addFileSet( new DefaultFileSet( new File( getSourceDirectory(), folder ) ) );
+    private File createArchiveFile( String folder )
+        throws NoSuchArchiverException, IOException
+    {
+        final MavenArchiver mavenArchiver = new MavenArchiver();
 
-			File zipFile = new File( getOutputDirectory(), folder + "-result.jar" );
-			mavenArchiver.setOutputFile( zipFile );
-			mavenArchiver.createArchive( getMavenSession(), getMavenProject(), getArchive() );
-		}
-		catch ( ArchiverException e )
-		{
-			getLog().error( "Archiver could not created.", e );
-		}
-		catch ( ManifestException e )
-		{
-			getLog().error( "Manifest Exception.", e );
-		}
-		catch ( DependencyResolutionRequiredException e )
-		{
-			getLog().error( "DependencyResolutionRequiredException:", e );
-		}
+        mavenArchiver.setArchiver( jarArchiver );
+        jarArchiver.addFileSet( new DefaultFileSet( new File( getSourceDirectory(), folder ) ) );
 
-	}
+        File resultArchive = getJarFile( new File( getOutputDirectory() ), getMavenProject().getArtifactId(), folder );
+
+        mavenArchiver.setOutputFile( resultArchive );
+        try
+        {
+            mavenArchiver.createArchive( getMavenSession(), getMavenProject(), getArchive() );
+        }
+        catch ( ArchiverException | ManifestException | DependencyResolutionRequiredException e )
+        {
+            getLog().error( e.getMessage() );
+        }
+
+        return resultArchive;
+
+    }
+
+    /**
+     * Returns the Jar file to generate, based on an optional classifier.
+     *
+     * @param basedir the output directory
+     * @param finalName the name of the ear file
+     * @param classifier an optional classifier
+     * @return the file to generate
+     */
+    private File getJarFile( File basedir, String finalName, String classifier )
+    {
+        if ( basedir == null )
+        {
+            throw new IllegalArgumentException( "basedir is not allowed to be null" );
+        }
+        if ( finalName == null )
+        {
+            throw new IllegalArgumentException( "finalName is not allowed to be null" );
+        }
+
+        StringBuilder fileName = new StringBuilder( finalName );
+
+        if ( hasClassifier( classifier ) )
+        {
+            fileName.append( "-" ).append( classifier );
+        }
+
+        fileName.append( ".war" );
+
+        return new File( basedir, fileName.toString() );
+    }
+
+    private boolean hasClassifier( String classifier )
+    {
+        boolean result = false;
+        if ( classifier != null && classifier.trim().length() > 0 )
+        {
+            result = true;
+        }
+
+        return result;
+    }
+
 }
