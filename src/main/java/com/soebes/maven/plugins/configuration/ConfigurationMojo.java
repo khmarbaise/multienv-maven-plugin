@@ -3,7 +3,6 @@ package com.soebes.maven.plugins.configuration;
 import java.io.File;
 import java.io.IOException;
 
-import org.apache.maven.MavenExecutionException;
 import org.apache.maven.archiver.MavenArchiver;
 import org.apache.maven.artifact.DependencyResolutionRequiredException;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -128,7 +127,7 @@ public class ConfigurationMojo
         mavenArchiver.setArchiver( jarArchiver );
         jarArchiver.addFileSet( new DefaultFileSet( new File( getSourceDirectory(), folder ) ) );
 
-        File resultArchive = getJarFile( new File( getOutputDirectory() ), getMavenProject().getArtifactId(), folder );
+        File resultArchive = getJarFile( new File( getOutputDirectory() ), getFinalName(), folder );
 
         mavenArchiver.setOutputFile( resultArchive );
         try

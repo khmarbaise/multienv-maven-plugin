@@ -44,6 +44,12 @@ public abstract class AbstractConfigurationMojo
     @Parameter( defaultValue = "${project.build.sourceEncoding}" )
     private String encoding;
 
+    /**
+     * Name of the generated JAR.
+     */
+    @Parameter( defaultValue = "${project.build.finalName}", readonly = true )
+    private String finalName;
+
     @Component
     private MavenProjectHelper projectHelper;
 
@@ -84,4 +90,10 @@ public abstract class AbstractConfigurationMojo
         return sourceDirectory;
     }
 
+    public String getFinalName()
+    {
+        return finalName;
+    }
+
+    
 }
