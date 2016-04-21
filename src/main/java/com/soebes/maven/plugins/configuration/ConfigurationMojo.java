@@ -19,6 +19,7 @@ import org.codehaus.plexus.archiver.manager.ArchiverManager;
 import org.codehaus.plexus.archiver.manager.NoSuchArchiverException;
 import org.codehaus.plexus.archiver.util.DefaultFileSet;
 import org.codehaus.plexus.util.DirectoryScanner;
+import org.codehaus.plexus.util.FileUtils;
 
 /**
  * Will check the parent of your project and fail the build if the parent is not the newest available version of the
@@ -71,7 +72,7 @@ public class ConfigurationMojo
                 try
                 {
                     File createArchiveFile = createArchiveFile( folder );
-                    getProjectHelper().attachArtifact( getMavenProject(), "war", folder, createArchiveFile );
+                    getProjectHelper().attachArtifact( getMavenProject(), getMavenProject().getPackaging(), folder, createArchiveFile );
 
                     // createGZIPArchive( folder );
                 }
@@ -109,14 +110,30 @@ public class ConfigurationMojo
 
     }
 
-    private void unarchiveFile( File sourceFile, File destDirectory )
+    private void unarchiveFile( File sourceFile, File destDirectory ) throws MojoExecutionException
     {
-        unArchiver.setSourceFile( sourceFile );
-        unArchiver.setUseJvmChmod( true );
-        unArchiver.setDestDirectory( destDirectory );
-        unArchiver.setOverwrite( true );
-        unArchiver.extract();
+        String archiveExt = FileUtils.getExtension( sourceFile.getAbsolutePath() ).toLowerCase();
 
+        try
+        {
+            UnArchiver unArchiver = manager.getUnArchiver( archiveExt );
+
+            unArchiver.setSourceFile( sourceFile );
+            unArchiver.setUseJvmChmod( true );
+            unArchiver.setDestDirectory( destDirectory );
+            unArchiver.setOverwrite( true );
+            unArchiver.extract();
+        }
+        catch ( ArchiverException e )
+        {
+            throw new MojoExecutionException( "Error unpacking file [" + sourceFile.getAbsolutePath() + "]" + " to ["
+                            + destDirectory.getAbsolutePath() + "]", e );
+        }
+        catch ( NoSuchArchiverException e )
+        {
+            getLog().error( "Unknown archiver."  
+                                       + " with unknown extension [" + archiveExt + "]" );
+        }
     }
 
     private File createArchiveFile( String folder )
