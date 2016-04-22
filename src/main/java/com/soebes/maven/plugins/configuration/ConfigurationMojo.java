@@ -152,7 +152,7 @@ public class ConfigurationMojo
         }
         catch ( ArchiverException | ManifestException | DependencyResolutionRequiredException e )
         {
-            getLog().error( e.getMessage() );
+            getLog().error( e.getMessage(), e );
         }
 
         return resultArchive;
