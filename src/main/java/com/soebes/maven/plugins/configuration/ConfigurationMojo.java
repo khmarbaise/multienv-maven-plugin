@@ -48,7 +48,7 @@ public class ConfigurationMojo
         throws MojoExecutionException, MojoFailureException
     {
 
-        File unpackFolder = new File( getOutputDirectory(), "unpack" );
+        File unpackFolder = new File( getOutputDirectory(), "configuration-maven-plugin-unpack" );
         unpackFolder.mkdirs();
 
         unarchiveFile( getMavenProject().getArtifact().getFile(), unpackFolder );
