@@ -63,18 +63,16 @@ public class ConfigurationMojo
         String[] includedDirectories = ds.getIncludedDirectories();
         for ( String folder : includedDirectories )
         {
-            getLog().info( "Environment Folder: '" + folder + "'" );
+            getLog().info( "Environment: '" + folder + "'" );
 
             // FIXME: Why do we get "" ?
             if ( !folder.isEmpty() )
             {
-
                 try
                 {
-                    File createArchiveFile = createArchiveFile( folder );
-                    getProjectHelper().attachArtifact( getMavenProject(), getMavenProject().getPackaging(), folder, createArchiveFile );
-
-                    // createGZIPArchive( folder );
+                    File createArchiveFile = createArchiveFile( unpackFolder, folder );
+                    getProjectHelper().attachArtifact( getMavenProject(), getMavenProject().getPackaging(), folder,
+                                                       createArchiveFile );
                 }
                 catch ( NoSuchArchiverException e )
                 {
@@ -110,7 +108,8 @@ public class ConfigurationMojo
 
     }
 
-    private void unarchiveFile( File sourceFile, File destDirectory ) throws MojoExecutionException
+    private void unarchiveFile( File sourceFile, File destDirectory )
+        throws MojoExecutionException
     {
         String archiveExt = FileUtils.getExtension( sourceFile.getAbsolutePath() ).toLowerCase();
 
@@ -127,22 +126,22 @@ public class ConfigurationMojo
         catch ( ArchiverException e )
         {
             throw new MojoExecutionException( "Error unpacking file [" + sourceFile.getAbsolutePath() + "]" + " to ["
-                            + destDirectory.getAbsolutePath() + "]", e );
+                + destDirectory.getAbsolutePath() + "]", e );
         }
         catch ( NoSuchArchiverException e )
         {
-            getLog().error( "Unknown archiver."  
-                                       + " with unknown extension [" + archiveExt + "]" );
+            getLog().error( "Unknown archiver." + " with unknown extension [" + archiveExt + "]" );
         }
     }
 
-    private File createArchiveFile( String folder )
+    private File createArchiveFile( File unpackFolder, String folder )
         throws NoSuchArchiverException, IOException
     {
         final MavenArchiver mavenArchiver = new MavenArchiver();
 
         mavenArchiver.setArchiver( jarArchiver );
         jarArchiver.addFileSet( new DefaultFileSet( new File( getSourceDirectory(), folder ) ) );
+        jarArchiver.addFileSet( new DefaultFileSet( unpackFolder ) );
 
         File resultArchive = getJarFile( new File( getOutputDirectory() ), getFinalName(), folder );
 
