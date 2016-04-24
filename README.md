@@ -1,5 +1,5 @@
-Configuration Packager Maven Plugin
-===================================
+Configuration Maven Plugin
+==========================
 
 License
 -------
@@ -15,11 +15,16 @@ Assuming the following structure:
      +-- main
           +-- environments
                 !
-                +--- dev1
-                +--- dev2
-                +--- test1
-                +--- test2
+                +--- dev01
+                +--- dev02
+                +--- test01
+                +--- test02
                 +--- prod
+
+
+The given folders under `environments` give the resulting packages.
+The folder like `dev01` will result in a package which contains
+all files which are located in the `dev01` folder.
 
 
  => Result will be (either zip, tar.gz, tar)
@@ -30,9 +35,3 @@ Assuming the following structure:
  * xyz-1.0-dev2.tar.gz
  * xyz-1.0-test1.zip
 
-How to identify the environments?
-
-TODO's
-------
-
- * We should support filtering as src/main/resources

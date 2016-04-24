@@ -96,4 +96,9 @@ public abstract class AbstractConfigurationMojo
         return finalName;
     }
 
+    public String getEncoding()
+    {
+        return encoding;
+    }
+
 }
