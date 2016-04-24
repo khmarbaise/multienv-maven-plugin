@@ -45,7 +45,6 @@
   </scm>
 
   <dependencyManagement>
-
     <dependencies>
       <dependency>
         <groupId>org.apache.maven</groupId>
