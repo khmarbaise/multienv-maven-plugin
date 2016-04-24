@@ -15,7 +15,7 @@ Overview
 
 There are several scenarios where you have different configurations for 
 different environments like dev, test, prod etc. (in real life there are
-usually much more environments).
+usually much more environments than three.).
 
 Now you need to produce different artifacts for example war files for those
 different environments. A combination of [maven-assembly-plugin and some
@@ -86,8 +86,7 @@ to your pom file (we assume here a war file):
   <artifactId>artifact</artifactId>
   <version>0.1-SNAPSHOT</version>
   <packaging>war</packaging>
-
-  <name>configuration-maven-plugin BasicTest</name>
+  ...
   <build>
     <plugins>
       <plugin>
@@ -105,6 +104,27 @@ to your pom file (we assume here a war file):
     </plugins>
   </build>
 ```
+
+Document 
+ * Using filtering? 
+ * Using filename/folder filtering ?
+ * Different files for different environments
+
+Advantages
+----------
+
+ * Much more convenient 
+ * less configuration. 
+ * Dynamically add new environments 
+ * No Profiles needed.
+
+TODO
+----
+ 
+ o Overwriting of file which exist in the original artifact? How to handle?
+ o Produce an artifact only for a single environment?
+   `mvn -Dconfiguration.maven.environment=test-01 clean package` 
+   Is this a good idea?
 
 
 [blog-multiple-environments-i]: http://blog.soebes.de/blog/2011/07/29/maven-configuration-for-multipe-environments/
