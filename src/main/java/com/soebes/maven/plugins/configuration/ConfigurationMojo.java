@@ -337,6 +337,7 @@ public class ConfigurationMojo
             fileName.append( "-" ).append( classifier );
         }
 
+        //FIXME: This needed to be done in an other way!
         fileName.append( ".war" );
 
         return new File( basedir, fileName.toString() );
