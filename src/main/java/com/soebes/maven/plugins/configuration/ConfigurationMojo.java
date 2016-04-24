@@ -3,6 +3,7 @@ package com.soebes.maven.plugins.configuration;
 import java.io.File;
 import java.io.IOException;
 
+import org.apache.maven.MavenExecutionException;
 import org.apache.maven.archiver.MavenArchiver;
 import org.apache.maven.artifact.DependencyResolutionRequiredException;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -44,13 +45,32 @@ public class ConfigurationMojo
     @Component
     private ArchiverManager manager;
 
+    /**
+     * Create the unpack folder for later unpackage of the main artifact.
+     * 
+     * @return The folder which has been created.
+     * @throws MojoFailureException in case of failure to create the folder.
+     */
+    private File createTemporaryUnpack()
+        throws MojoFailureException
+    {
+        File unpackFolder = new File( getOutputDirectory(), "configuration-maven-plugin-unpack" );
+        if ( !unpackFolder.mkdirs() )
+        {
+            throw new MojoFailureException( "The unpack folder " + unpackFolder.getAbsolutePath()
+                + " couldn't generated!" );
+        }
+        return unpackFolder;
+    }
+
     public void execute()
         throws MojoExecutionException, MojoFailureException
     {
 
-        File unpackFolder = new File( getOutputDirectory(), "configuration-maven-plugin-unpack" );
-        unpackFolder.mkdirs();
+        File unpackFolder = createTemporaryUnpack();
 
+        // Currently we use the main artifact of the project
+        // TODO: May be should make this configurable?
         unarchiveFile( getMavenProject().getArtifact().getFile(), unpackFolder );
 
         DirectoryScanner ds = new DirectoryScanner();
@@ -143,7 +163,7 @@ public class ConfigurationMojo
         jarArchiver.addFileSet( new DefaultFileSet( new File( getSourceDirectory(), folder ) ) );
         jarArchiver.addFileSet( new DefaultFileSet( unpackFolder ) );
 
-        File resultArchive = getJarFile( new File( getOutputDirectory() ), getFinalName(), folder );
+        File resultArchive = getJarFile( getOutputDirectory(), getFinalName(), folder );
 
         mavenArchiver.setOutputFile( resultArchive );
         try

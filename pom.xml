@@ -17,7 +17,7 @@
   <packaging>maven-plugin</packaging>
 
   <name>The Configuration Maven Plugin</name>
-  <description>...</description>
+  <description>The Configuration Maven Plugin will help to create environment dependent artifacts.</description>
 
   <prerequisites>
     <maven>${maven.version}</maven>

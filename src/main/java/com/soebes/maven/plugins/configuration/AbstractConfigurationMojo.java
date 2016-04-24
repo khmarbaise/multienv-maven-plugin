@@ -17,24 +17,25 @@ public abstract class AbstractConfigurationMojo
     /**
      * The project currently being build.
      */
-    @Parameter( defaultValue = "${project}", readonly = true )
+    @Parameter( defaultValue = "${project}", required = true, readonly = true )
     private MavenProject mavenProject;
 
     /**
      * The current Maven session.
      */
-    @Parameter( defaultValue = "${session}", readonly = true )
+    @Parameter( defaultValue = "${session}", required = true, readonly = true )
     private MavenSession mavenSession;
 
     /**
-     * The directory for the generated WAR.
+     * The directory for the generated configuration packages.
      */
-    @Parameter( defaultValue = "${project.build.directory}", required = true )
-    private String outputDirectory;
+    @Parameter( defaultValue = "${project.build.directory}", required = true, readonly = true )
+    private File outputDirectory;
 
     /**
      * folder which contains the different environments
      */
+    //TODO: src/main ? property?
     @Parameter( defaultValue = "${basedir}/src/main/environments" )
     private File sourceDirectory;
 
@@ -61,11 +62,11 @@ public abstract class AbstractConfigurationMojo
     private MavenArchiveConfiguration archive = new MavenArchiveConfiguration();
 
     public MavenArchiveConfiguration getArchive()
-	{
-		return archive;
-	}
+    {
+        return archive;
+    }
 
-	public MavenProject getMavenProject()
+    public MavenProject getMavenProject()
     {
         return mavenProject;
     }
@@ -75,7 +76,7 @@ public abstract class AbstractConfigurationMojo
         return mavenSession;
     }
 
-    public String getOutputDirectory()
+    public File getOutputDirectory()
     {
         return outputDirectory;
     }
@@ -95,5 +96,4 @@ public abstract class AbstractConfigurationMojo
         return finalName;
     }
 
-    
 }
