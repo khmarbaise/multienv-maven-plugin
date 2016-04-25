@@ -182,6 +182,19 @@ public class ConfigurationMojo
         throws MojoExecutionException, MojoFailureException
     {
 
+        if ( getMavenProject().getArtifact() == null )
+        {
+            getLog().error( "No main artifact set." );
+        }
+
+        if ( getMavenProject().getArtifact().getFile() == null )
+        {
+            getLog().error( "No main artifact file assigned." );
+        }
+
+        String archiveExt =
+            FileUtils.getExtension( getMavenProject().getArtifact().getFile().getAbsolutePath() ).toLowerCase();
+
         File unpackFolder = createUnpackFolder();
 
         getLog().info( "Output: " + getOutputDirectory().getAbsolutePath() );
@@ -193,7 +206,7 @@ public class ConfigurationMojo
 
         // Currently we use the main artifact of the project
         // TODO: May be should make this configurable?
-        unarchiveFile( getMavenProject().getArtifact().getFile(), unpackFolder );
+        unarchiveFile( getMavenProject().getArtifact().getFile(), unpackFolder, archiveExt );
 
         DirectoryScanner ds = new DirectoryScanner();
         ds.setBasedir( resourceResult );
@@ -203,8 +216,9 @@ public class ConfigurationMojo
         ds.scan();
 
         String[] includedDirectories = ds.getIncludedDirectories();
-        
-        if (includedDirectories.length == 0) {
+
+        if ( includedDirectories.length == 0 )
+        {
             getLog().warn( "No folders found." );
             return;
         }
@@ -222,7 +236,7 @@ public class ConfigurationMojo
 
             try
             {
-                File createArchiveFile = createArchiveFile( unpackFolder, folder );
+                File createArchiveFile = createArchiveFile( unpackFolder, folder, archiveExt );
                 getProjectHelper().attachArtifact( getMavenProject(), getMavenProject().getPackaging(), folder,
                                                    createArchiveFile );
             }
@@ -259,11 +273,9 @@ public class ConfigurationMojo
 
     }
 
-    private void unarchiveFile( File sourceFile, File destDirectory )
+    private void unarchiveFile( File sourceFile, File destDirectory, String archiveExt )
         throws MojoExecutionException
     {
-        String archiveExt = FileUtils.getExtension( sourceFile.getAbsolutePath() ).toLowerCase();
-
         try
         {
             UnArchiver unArchiver = manager.getUnArchiver( archiveExt );
@@ -285,7 +297,7 @@ public class ConfigurationMojo
         }
     }
 
-    private File createArchiveFile( File unpackFolder, String folder )
+    private File createArchiveFile( File unpackFolder, String folder, String archiveExt )
         throws NoSuchArchiverException, IOException
     {
         final MavenArchiver mavenArchiver = new MavenArchiver();
@@ -295,7 +307,7 @@ public class ConfigurationMojo
         jarArchiver.addFileSet( new DefaultFileSet( new File( getSourceDirectory(), folder ) ) );
         jarArchiver.addFileSet( new DefaultFileSet( unpackFolder ) );
 
-        File resultArchive = getArchiveFile( getOutputDirectory(), getFinalName(), folder );
+        File resultArchive = getArchiveFile( getOutputDirectory(), getFinalName(), folder, archiveExt );
 
         mavenArchiver.setOutputFile( resultArchive );
         try
@@ -319,7 +331,7 @@ public class ConfigurationMojo
      * @param classifier an optional classifier
      * @return the file to generate
      */
-    private File getArchiveFile( File basedir, String finalName, String classifier )
+    private File getArchiveFile( File basedir, String finalName, String classifier, String archiveExt )
     {
         if ( basedir == null )
         {
@@ -337,8 +349,8 @@ public class ConfigurationMojo
             fileName.append( "-" ).append( classifier );
         }
 
-        //FIXME: This needed to be done in an other way!
-        fileName.append( ".war" );
+        fileName.append( '.' );
+        fileName.append( archiveExt );
 
         return new File( basedir, fileName.toString() );
     }
