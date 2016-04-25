@@ -34,7 +34,7 @@ def projectVersion = getProjectVersion();
 
 println "Project version: ${projectVersion}"
 
-def classifierList = ['dev-01', 'qa-01', 'test-01']
+def classifierList = ['dev-01', 'qa-01' ]
 
 def buildLogFile = new File( basedir, "build.log");
 
@@ -48,7 +48,7 @@ if (!targetFolder.exists()) {
 }
 
 classifierList.each { classifier ->
-    def tf = new File (targetFolder, "jar-test-" + projectVersion + "-" + classifier + ".jar")
+    def tf = new File (targetFolder, "filtering-test-" + projectVersion + "-" + classifier + ".jar")
     println "Checking ${classifier}: " + tf.getAbsolutePath()
     if (!tf.exists()) {
         throw new FileNotFoundException("The file " + tf.getAbsolutePath() + " does not exists.")

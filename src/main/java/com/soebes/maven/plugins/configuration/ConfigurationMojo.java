@@ -2,6 +2,7 @@ package com.soebes.maven.plugins.configuration;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -15,6 +16,7 @@ import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
+import org.apache.maven.shared.filtering.MavenFileFilter;
 import org.apache.maven.shared.filtering.MavenFilteringException;
 import org.apache.maven.shared.filtering.MavenResourcesExecution;
 import org.apache.maven.shared.filtering.MavenResourcesFiltering;
@@ -49,8 +51,11 @@ public class ConfigurationMojo
     @Component
     private ArchiverManager manager;
 
-    @Component
+    @Component( role = MavenResourcesFiltering.class, hint = "default" )
     private MavenResourcesFiltering mavenResourcesFiltering;
+
+    @Component( role = MavenFileFilter.class, hint = "default" )
+    private MavenFileFilter mavenFileFilter;
 
     /**
      * Expression preceded with the String won't be interpolated \${foo} will be replaced with ${foo}
@@ -118,6 +123,12 @@ public class ConfigurationMojo
     private List<String> nonFilteredFileExtensions;
 
     /**
+     * stop searching endToken at the end of line
+     */
+    @Parameter( defaultValue = "false" )
+    private boolean supportMultiLineFiltering;
+
+    /**
      * Create the unpack folder for later unpacking of the main artifact.
      * 
      * @return The folder which has been created.
@@ -139,27 +150,31 @@ public class ConfigurationMojo
         throws MojoExecutionException
     {
 
-        MavenResourcesExecution execution = new MavenResourcesExecution();
-
-        // TODO: Check if we need a parameter?
-        execution.setInjectProjectBuildFilters( false );
-
         Resource res = new Resource();
         // TODO: Check how to prevent hard coding here?
-        res.setDirectory( "src/main/environments" );
-        execution.setResources( Collections.singletonList( res ) );
+        res.setDirectory( getSourceDirectory().getAbsolutePath() );
+        res.setFiltering( true );
+        res.setIncludes( Collections.singletonList( "**/*" ) );
 
-        execution.setOutputDirectory( outputDirectory );
-        execution.setEscapeString( escapeString );
-        // TODO: Check if we need a parameter?
-        execution.setIncludeEmptyDirs( true );
-        execution.setEscapeWindowsPaths( escapeWindowsPaths );
-        execution.setFilterFilenames( fileNameFiltering );
-        execution.setFilters( filters );
-        // TODO: Check if we need a parameter?
-        execution.setInjectProjectBuildFilters( false );
-        execution.setDelimiters( delimiters, useDefaultDelimiters );
-        execution.setEncoding( getEncoding() );
+        List<String> filtersFile = new ArrayList<String>();
+        MavenResourcesExecution execution =
+            new MavenResourcesExecution( Collections.singletonList( res ), outputDirectory, getMavenProject(),
+                                         getEncoding(), filtersFile, nonFilteredFileExtensions, getMavenSession() );
+
+         execution.setEscapeString( escapeString );
+         execution.setSupportMultiLineFiltering( supportMultiLineFiltering );
+         // TODO: Check if we need a parameter?
+         execution.setIncludeEmptyDirs( true );
+         execution.setEscapeWindowsPaths( escapeWindowsPaths );
+        // execution.setFilterFilenames( fileNameFiltering );
+        //// execution.setFilters( filters );
+        //
+        // // TODO: Check if we need a parameter?
+         execution.setOverwrite( true );
+         execution.setDelimiters( delimiters, useDefaultDelimiters );
+        // execution.setEncoding( getEncoding() );
+        //
+        // execution.setUseDefaultFilterWrappers( true );
 
         if ( nonFilteredFileExtensions != null )
         {
@@ -236,7 +251,8 @@ public class ConfigurationMojo
 
             try
             {
-                File createArchiveFile = createArchiveFile( unpackFolder, folder, archiveExt );
+                File targetFolder = new File( resourceResult, folder );
+                File createArchiveFile = createArchiveFile( unpackFolder, targetFolder, folder, archiveExt );
                 getProjectHelper().attachArtifact( getMavenProject(), getMavenProject().getPackaging(), folder,
                                                    createArchiveFile );
             }
@@ -297,14 +313,14 @@ public class ConfigurationMojo
         }
     }
 
-    private File createArchiveFile( File unpackFolder, String folder, String archiveExt )
+    private File createArchiveFile( File unpackFolder, File targetFolder, String folder, String archiveExt )
         throws NoSuchArchiverException, IOException
     {
         final MavenArchiver mavenArchiver = new MavenArchiver();
 
         mavenArchiver.setArchiver( jarArchiver );
 
-        jarArchiver.addFileSet( new DefaultFileSet( new File( getSourceDirectory(), folder ) ) );
+        jarArchiver.addFileSet( new DefaultFileSet( targetFolder ) );
         jarArchiver.addFileSet( new DefaultFileSet( unpackFolder ) );
 
         File resultArchive = getArchiveFile( getOutputDirectory(), getFinalName(), folder, archiveExt );
