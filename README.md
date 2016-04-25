@@ -105,6 +105,31 @@ to your pom file (we assume here a war file):
   </build>
 ```
 
+Filtering
+---------
+
+The source structure 
+
+     src
+      ├── main 
+            ├── environments
+                 ├── dev-01
+                 │   └── first.properties
+                 ├── dev-02
+                 │   └── first.properties
+                 ├── test-01
+                 │   └── first.properties
+                 ├── test-02
+                 │   └── first.properties
+                 └── prod
+                     └── first.properties
+
+will be filtered before it is packaged into the resulting archives which means
+you can use the default filtering mechanisms like `${project.version}` or self defined
+properties in your environment files.
+
+
+
 Document 
  * Using filtering? 
  * Using filename/folder filtering ?
