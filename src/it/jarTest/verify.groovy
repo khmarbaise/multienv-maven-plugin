@@ -25,28 +25,34 @@ t = new IntegrationBase()
 
 
 def getProjectVersion() {
-	def pom = new XmlSlurper().parse(new File(basedir, 'pom.xml'))
-   
-	  def allPlugins = pom.build.plugins.plugin;
-   
-	  def configurationMavenPlugin = allPlugins.find {
-		  item -> item.groupId.equals("com.soebes.maven.plugins") && item.artifactId.equals("configuration-maven-plugin");
-	  }
-	  
-	  return configurationMavenPlugin.version;
+    def pom = new XmlSlurper().parse(new File(basedir, 'pom.xml'))
+
+    return pom.version
 }
-   
+
 def projectVersion = getProjectVersion();
-   
+
 println "Project version: ${projectVersion}"
-   
+
+def classifierList = ['dev-01', 'qa-01', 'test-01']
+
 def buildLogFile = new File( basedir, "build.log");
 
 if (!buildLogFile.exists()) {
-  throw new FileNotFoundException("build.log does not exists.")
+    throw new FileNotFoundException("build.log does not exists.")
 }
 
-//def buildResult = new File (basedir, "
-// TODO: Check existence of all jar files
+def targetFolder = new File (basedir, "target")
+if (!targetFolder.exists()) {
+    throw new FileNotFoundException("target folder does not exists.")
+}
 
-return false;
+classifierList.each { classifier ->
+    def tf = new File (targetFolder, "basic-test-" + projectVersion + "-" + classifier + ".jar")
+    println "Checking ${classifier}: " + tf.getAbsolutePath()
+    if (!tf.exists()) {
+        throw new FileNotFoundException("The file " + tf.getAbsolutePath() + " does not exists.")
+    }
+}
+
+return true;
