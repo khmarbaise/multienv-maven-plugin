@@ -36,7 +36,7 @@ less simple and we assume having only a single module build which produces a
 single `war` file as result.
 
 To use the Configuration Maven Plugin you can simple create the following
-structure in your module tree:
+structure in your module:
 
      src
       ├── main 
@@ -52,14 +52,19 @@ structure in your module tree:
                  └── prod
                      └── first.properties
 
-In Result the Configuration Maven Plugin will automatically create the
+In result the Configuration Maven Plugin will automatically create the
 appropriate war files containing the configuration file `first.properties`
 which might contain some information like the database connections url etc. for
 the appropriate environment.
 
-The environment name will automatically being used as classifier for the
-appropriate artifact name. So we would get the following file after running
-Configuration Maven Plugin:
+The environment name (folder name) will automatically being used as classifier
+for the appropriate artifact. So we would get the following files after
+running Configuration Maven Plugin via ([assuming you have configured it
+correctly](README.md#how-to-configure)):
+
+```
+mvn clean package
+```
 
   * artifactId-version-dev-01.war
   * artifactId-version-dev-02.war
@@ -68,11 +73,11 @@ Configuration Maven Plugin:
   * artifactId-version-prod.war
 
 
-So next time you need to add an environment you simply solve this by adding a
+If you need to add a new environment this can simply being solved by adding a
 new folder under `environments` which might being called `qa-01` plus the
-information you would like to configure and that's it what's needed to do.
-Configuration Maven Plugin will automatically identify the new environment by
-search in the environment folder and producing appropriate artifacts from it.
+information you would like to configure and that's it.  Configuration Maven
+Plugin will automatically identify the new environment by search in the
+environment folder and producing appropriate artifacts out of it.
 
 How To Configure
 ----------------
@@ -108,30 +113,13 @@ to your pom file (we assume here a war file):
 Filtering
 ---------
 
-The source structure 
-
-     src
-      ├── main 
-            ├── environments
-                 ├── dev-01
-                 │   └── first.properties
-                 ├── dev-02
-                 │   └── first.properties
-                 ├── test-01
-                 │   └── first.properties
-                 ├── test-02
-                 │   └── first.properties
-                 └── prod
-                     └── first.properties
-
-will be filtered before it is packaged into the resulting archives which means
-you can use the default filtering mechanisms like `${project.version}` or self defined
-properties in your environment files.
-
+Based on the given folder structure files like `*.properties` etc. will be
+filtered before they are packaged into the resulting artifacts. This means you
+can use things like `${project.version}` in your files or other self defined
+properties.
 
 
 Document 
- * Using filtering? 
  * Using filename/folder filtering ?
  * Different files for different environments
 
