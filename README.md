@@ -113,13 +113,14 @@ to your pom file (we assume here a war file):
 Filtering
 ---------
 
-Based on the given folder structure files like `*.properties` etc. will be
+Based on the given folder structure files like `first.properties` etc. will be
 filtered before they are packaged into the resulting artifacts. This means you
 can use things like `${project.version}` in your files or other self defined
 properties.
 
 
-Document 
+Document:
+
  * Using filename/folder filtering ?
  * Different files for different environments
 
@@ -134,14 +135,15 @@ Advantages
 TODO
 ----
 
- o Configuration Maven Plugin in a different maven project within multi module
+ * Configuration Maven Plugin in a different maven project within multi module
    build? How does that work? 
- o Overwriting of file which exist in the original artifact? How to handle?
- o Produce an artifact only for a single environment?
+ * Overwriting of file which exist in the original artifact? How to handle?
+ * Produce an artifact only for a single environment?
    `mvn -Dconfiguration.maven.environment=test-01 clean package` 
    Is this a good idea?
 
- o Name? Configuration Maven Plugin? Might be environment-maven-plugin better ?
+ * Name? Configuration Maven Plugin? Might be environment-maven-plugin better ?
+
 
 [blog-multiple-environments-i]: http://blog.soebes.de/blog/2011/07/29/maven-configuration-for-multipe-environments/
 [blog-multiple-environments-ii]: http://blog.soebes.de/blog/2011/08/11/maven-configuration-for-multipe-environments-ii/
