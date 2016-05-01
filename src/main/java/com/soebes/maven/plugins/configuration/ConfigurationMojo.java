@@ -154,6 +154,7 @@ public class ConfigurationMojo
         // TODO: Check how to prevent hard coding here?
         res.setDirectory( getSourceDirectory().getAbsolutePath() );
         res.setFiltering( true );
+        // TODO: Check if it makes sense to make this list configurable?
         res.setIncludes( Collections.singletonList( "**/*" ) );
 
         List<String> filtersFile = new ArrayList<String>();
@@ -166,15 +167,15 @@ public class ConfigurationMojo
          // TODO: Check if we need a parameter?
          execution.setIncludeEmptyDirs( true );
          execution.setEscapeWindowsPaths( escapeWindowsPaths );
-        // execution.setFilterFilenames( fileNameFiltering );
+         execution.setFilterFilenames( fileNameFiltering );
         //// execution.setFilters( filters );
         //
         // // TODO: Check if we need a parameter?
          execution.setOverwrite( true );
          execution.setDelimiters( delimiters, useDefaultDelimiters );
-        // execution.setEncoding( getEncoding() );
+         execution.setEncoding( getEncoding() );
         //
-        // execution.setUseDefaultFilterWrappers( true );
+//         execution.setUseDefaultFilterWrappers( true );
 
         if ( nonFilteredFileExtensions != null )
         {

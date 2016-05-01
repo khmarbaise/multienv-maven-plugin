@@ -20,14 +20,13 @@
  ------
  Karl-Heinz Marbaise
  ------
- 2014-07-07
+ 2016-04-30
  ------
 
 
-UpToDate Maven Plugin
+Configuration Maven Plugin
 
-  The uptodate maven plugin is intended to check your dependencies and your parent if they are using the 
-  most recent version.
+  The Configuration Maven Plugin is intended to package artifacts for different environments.
 
 * Goals Overview
 
