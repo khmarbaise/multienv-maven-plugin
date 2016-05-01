@@ -162,20 +162,20 @@ public class ConfigurationMojo
             new MavenResourcesExecution( Collections.singletonList( res ), outputDirectory, getMavenProject(),
                                          getEncoding(), filtersFile, nonFilteredFileExtensions, getMavenSession() );
 
-         execution.setEscapeString( escapeString );
-         execution.setSupportMultiLineFiltering( supportMultiLineFiltering );
-         // TODO: Check if we need a parameter?
-         execution.setIncludeEmptyDirs( true );
-         execution.setEscapeWindowsPaths( escapeWindowsPaths );
-         execution.setFilterFilenames( fileNameFiltering );
+        execution.setEscapeString( escapeString );
+        execution.setSupportMultiLineFiltering( supportMultiLineFiltering );
+        // TODO: Check if we need a parameter?
+        execution.setIncludeEmptyDirs( true );
+        execution.setEscapeWindowsPaths( escapeWindowsPaths );
+        execution.setFilterFilenames( fileNameFiltering );
         //// execution.setFilters( filters );
         //
         // // TODO: Check if we need a parameter?
-         execution.setOverwrite( true );
-         execution.setDelimiters( delimiters, useDefaultDelimiters );
-         execution.setEncoding( getEncoding() );
+        execution.setOverwrite( true );
+        execution.setDelimiters( delimiters, useDefaultDelimiters );
+        execution.setEncoding( getEncoding() );
         //
-//         execution.setUseDefaultFilterWrappers( true );
+        // execution.setUseDefaultFilterWrappers( true );
 
         if ( nonFilteredFileExtensions != null )
         {
@@ -200,20 +200,18 @@ public class ConfigurationMojo
 
         if ( getMavenProject().getArtifact() == null )
         {
-            getLog().error( "No main artifact set." );
+            throw new MojoExecutionException( "No main artifact has been set yet." );
         }
 
         if ( getMavenProject().getArtifact().getFile() == null )
         {
-            getLog().error( "No main artifact file assigned." );
+            throw new MojoExecutionException( "No main artifact file has been set yet." );
         }
 
         String archiveExt =
             FileUtils.getExtension( getMavenProject().getArtifact().getFile().getAbsolutePath() ).toLowerCase();
 
         File unpackFolder = createUnpackFolder();
-
-        getLog().info( "Output: " + getOutputDirectory().getAbsolutePath() );
 
         File resourceResult = new File( getOutputDirectory(), "configuration-maven-plugin-resource-output" );
         resourceResult.mkdirs();
@@ -239,9 +237,25 @@ public class ConfigurationMojo
             return;
         }
 
+        getLog().info( "" );
+        getLog().info( "We have found " + includedDirectories.length + " environments." );
+
+        StringBuilder sb = new StringBuilder();
+        for ( int i = 0; i < includedDirectories.length; i++ )
+        {
+            if ( sb.length() > 0 )
+            {
+                sb.append( ',' );
+            }
+            sb.append( includedDirectories[i] );
+        }
+
+        getLog().info( "We have the following environments: " + sb.toString() );
+        getLog().info( "" );
+
         for ( String folder : includedDirectories )
         {
-            getLog().info( "Environment: '" + folder + "'" );
+            getLog().info( "Building Environment: '" + folder + "'" );
 
             // Check why this can happen?
             if ( folder.isEmpty() )
