@@ -87,8 +87,8 @@ to your pom file (we assume here a war file):
 
 ``` xml
 
-  <groupId>groupXXX</groupId>
-  <artifactId>artifact</artifactId>
+  <groupId>groupId</groupId>
+  <artifactId>artifactId</artifactId>
   <version>0.1-SNAPSHOT</version>
   <packaging>war</packaging>
   ...
