@@ -30,13 +30,9 @@ Configuration Maven Plugin
 
 * Goals Overview
 
-  The UpToDate Plugin has the following goals.
+  The Configuration Maven Plugin has only one goal which.
 
-  * {{{./dependency-mojo.html}uptodate:dependency}} checks all the project dependencies
-  if they are the most recent versions if not the build will fail.
-
-  * {{{./parent-mojo.html}uptodate:parent}} checks the parent of the project for the most
-  recent version otherwise it will fail the build.
+  * {{{./configuration-mojo.html}configuration:configuration}}.
 
 * Usage
 
@@ -55,12 +51,4 @@ Configuration Maven Plugin
   Of course, patches are welcome, too. Contributors can check out the project from our
   {{{./source-repository.html}source repository}} and will find supplementary information in the
   {{{http://maven.apache.org/guides/development/guide-helping.html}guide to helping with Maven}}.
-
-* Examples
-
-  To provide you with better understanding of some usages of the Plugin Name,
-  you can take a look into the following examples:
-
-  * {{{./examples/advancing-dependency-versions.html}Advancing dependency versions}}
-
 

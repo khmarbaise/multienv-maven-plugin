@@ -40,8 +40,8 @@
 
   <scm>
     <developerConnection>scm:git:ssh://git@github.com/khmarbaise/configuration-maven-plugin.git</developerConnection>
-    <connection>scm:git:https://github.com/khmarbaise/connection-maven-plugin.git</connection>
-    <url>https://github.com/khmarbaise/connection-maven-plugin/</url>
+    <connection>scm:git:https://github.com/khmarbaise/configuration-maven-plugin.git</connection>
+    <url>https://github.com/khmarbaise/configuration-maven-plugin/</url>
   </scm>
 
   <dependencyManagement>

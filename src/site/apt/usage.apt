@@ -20,13 +20,10 @@
  ------
  Karl-Heinz Marbaise
  ------
- 2015-03-28
+ 2016-04-30
  ------
 
+Configuration Maven Plugin
 
-UpToDate Maven Plugin
-
-  Sometimes it happens that you have projects which are maintained but unfortunately
-  you realizing that the project misses to update the parents of some dependencies.
-  By using the uptodate-maven-plugin you can force this.
-
+ Create a larger number of artifacts which contain different configuration
+ for each environment.
