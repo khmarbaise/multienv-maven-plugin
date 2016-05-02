@@ -132,21 +132,43 @@ public class ConfigurationMojo
      * Create the unpack folder for later unpacking of the main artifact.
      * 
      * @return The folder which has been created.
-     * @throws MojoFailureException in case of failure to create the folder.
+     * @throws MojoExecutionException in case of failures.
      */
     private File createUnpackFolder()
-        throws MojoFailureException
+        throws MojoFailureException, MojoExecutionException
     {
+        // TODO: Should we use a different name or temp file? File.createTempFile( prefix, suffix );
         File unpackFolder = new File( getOutputDirectory(), "configuration-maven-plugin-unpack" );
+
+        deleteFolderOfPreviousRunIfExist( unpackFolder );
+
         if ( !unpackFolder.mkdirs() )
         {
-            throw new MojoFailureException( "The unpack folder " + unpackFolder.getAbsolutePath()
+            throw new MojoExecutionException( "The unpack folder " + unpackFolder.getAbsolutePath()
                 + " couldn't generated!" );
         }
         return unpackFolder;
     }
 
-    private void handleResourceFiltering( File outputDirectory )
+    private void deleteFolderOfPreviousRunIfExist( File folderOfPreviousRun )
+        throws MojoExecutionException
+    {
+        
+        if ( folderOfPreviousRun.exists() )
+        {
+            try
+            {
+                FileUtils.deleteDirectory( folderOfPreviousRun );
+            }
+            catch ( IOException e )
+            {
+                throw new MojoExecutionException( "Failure while deleting " + folderOfPreviousRun.getAbsolutePath(),
+                                                  e );
+            }
+        }
+    }
+
+    private void filterResources( File outputDirectory )
         throws MojoExecutionException
     {
 
@@ -194,10 +216,9 @@ public class ConfigurationMojo
 
     }
 
-    public void execute()
-        throws MojoExecutionException, MojoFailureException
+    private String getArchiveExtensionOfTheProjectMainArtifact()
+        throws MojoExecutionException
     {
-
         if ( getMavenProject().getArtifact() == null )
         {
             throw new MojoExecutionException( "No main artifact has been set yet." );
@@ -208,15 +229,37 @@ public class ConfigurationMojo
             throw new MojoExecutionException( "No main artifact file has been set yet." );
         }
 
-        String archiveExt =
-            FileUtils.getExtension( getMavenProject().getArtifact().getFile().getAbsolutePath() ).toLowerCase();
+        return FileUtils.getExtension( getMavenProject().getArtifact().getFile().getAbsolutePath() ).toLowerCase();
+
+    }
+
+    private File createPluginResourceOutput()
+        throws MojoExecutionException
+    {
+        // TODO: Should we use a different name? Or temp File?
+        File resourceResult = new File( getOutputDirectory(), "configuration-maven-plugin-resource-output" );
+
+        deleteFolderOfPreviousRunIfExist( resourceResult );
+
+        if ( !resourceResult.mkdirs() )
+        {
+            throw new MojoExecutionException( "Failure while trying to create " + resourceResult.getAbsolutePath() );
+        }
+
+        return resourceResult;
+    }
+
+    public void execute()
+        throws MojoExecutionException, MojoFailureException
+    {
+
+        String archiveExt = getArchiveExtensionOfTheProjectMainArtifact();
 
         File unpackFolder = createUnpackFolder();
 
-        File resourceResult = new File( getOutputDirectory(), "configuration-maven-plugin-resource-output" );
-        resourceResult.mkdirs();
+        File resourceResult = createPluginResourceOutput();
 
-        handleResourceFiltering( resourceResult );
+        filterResources( resourceResult );
 
         // Currently we use the main artifact of the project
         // TODO: May be should make this configurable?
@@ -329,7 +372,7 @@ public class ConfigurationMojo
     }
 
     private File createArchiveFile( File unpackFolder, File targetFolder, String folder, String archiveExt )
-        throws NoSuchArchiverException, IOException
+        throws NoSuchArchiverException, IOException, MojoExecutionException
     {
         final MavenArchiver mavenArchiver = new MavenArchiver();
 
@@ -337,6 +380,7 @@ public class ConfigurationMojo
 
         jarArchiver.addFileSet( new DefaultFileSet( targetFolder ) );
         jarArchiver.addFileSet( new DefaultFileSet( unpackFolder ) );
+        // jarArchiver.setDuplicateBehavior( duplicate );
 
         File resultArchive = getArchiveFile( getOutputDirectory(), getFinalName(), folder, archiveExt );
 
@@ -348,6 +392,7 @@ public class ConfigurationMojo
         catch ( ArchiverException | ManifestException | DependencyResolutionRequiredException e )
         {
             getLog().error( e.getMessage(), e );
+            throw new MojoExecutionException( e.getMessage(), e );
         }
 
         return resultArchive;
