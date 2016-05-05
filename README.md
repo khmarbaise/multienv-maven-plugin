@@ -139,10 +139,10 @@ TODO
    build? How does that work? 
  * Overwriting of file which exist in the original artifact? How to handle?
  * Produce an artifact only for a single environment?
-   `mvn -Dconfiguration.maven.environment=test-01 clean package` 
+   `mvn -Dmultienv.environment=test-01 clean package` 
    Is this a good idea?
-
- * Name? MultiEnv Maven Plugin? Better one?
+ o Create only separate environment package for each environment.
+   instead of merging it with the current package.
 
 
 [blog-multiple-environments-i]: http://blog.soebes.de/blog/2011/07/29/maven-configuration-for-multipe-environments/
