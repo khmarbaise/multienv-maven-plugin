@@ -27,17 +27,16 @@ under the License.
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
-    <groupId>com.soebes.maven.plugins.test.integration</groupId>
+    <groupId>com.soebes.maven.plugins.it.multienv</groupId>
     <artifactId>parent</artifactId>
     <version>0.3</version>
   </parent>
 
-  <groupId>com.soebes.maven.plugins.configuration.test.integration</groupId>
   <artifactId>basic-no-debug-test</artifactId>
   <version>0.1-SNAPSHOT</version>
   <packaging>war</packaging>
 
-  <name>configuration-maven-plugin BasicTest</name>
+  <name>multienv-maven-plugin BasicTest</name>
 
   <dependencies>
     <dependency>

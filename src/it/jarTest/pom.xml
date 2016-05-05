@@ -27,16 +27,15 @@ under the License.
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
-    <groupId>com.soebes.maven.plugins.test.integration</groupId>
+    <groupId>com.soebes.maven.plugins.it.multienv</groupId>
     <artifactId>parent</artifactId>
     <version>0.3</version>
   </parent>
 
-  <groupId>com.soebes.maven.plugins.configuration.test.integration</groupId>
   <artifactId>jar-test</artifactId>
   <version>0.1-SNAPSHOT</version>
 
-  <name>configuration-maven-plugin JarTest</name>
+  <name>multienv-maven-plugin JarTest</name>
 
   <dependencies>
     <dependency>

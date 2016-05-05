@@ -6,7 +6,7 @@
 
   <modelVersion>4.0.0</modelVersion>
 
-  <groupId>com.soebes.maven.plugins.test.integration</groupId>
+  <groupId>com.soebes.maven.plugins.it.multienv</groupId>
   <artifactId>parent</artifactId>
   <version>0.3</version>
 

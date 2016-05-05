@@ -12,12 +12,12 @@
   </parent>
 
   <groupId>com.soebes.maven.plugins</groupId>
-  <artifactId>configuration-maven-plugin</artifactId>
+  <artifactId>multienv-maven-plugin</artifactId>
   <version>0.0.1-SNAPSHOT</version>
   <packaging>maven-plugin</packaging>
 
-  <name>The Configuration Maven Plugin</name>
-  <description>The Configuration Maven Plugin will help to create environment dependent artifacts.</description>
+  <name>The MultiEnv Maven Plugin</name>
+  <description>The MultiEnv Maven Plugin will help to create environment dependent artifacts.</description>
 
   <prerequisites>
     <maven>${maven.version}</maven>
@@ -31,17 +31,17 @@
 
   <issueManagement>
     <system>GitHub</system>
-    <url>https://github.com/khmarbaise/configuration-maven-plugin/issues</url>
+    <url>https://github.com/khmarbaise/multienv-maven-plugin/issues</url>
   </issueManagement>
   <ciManagement>
     <system>Travis-CI</system>
-    <url>https://travis-ci.org/mojohaus/configuration-maven-plugin</url>
+    <url>https://travis-ci.org/mojohaus/multienv-maven-plugin</url>
   </ciManagement>
 
   <scm>
-    <developerConnection>scm:git:ssh://git@github.com/khmarbaise/configuration-maven-plugin.git</developerConnection>
-    <connection>scm:git:https://github.com/khmarbaise/configuration-maven-plugin.git</connection>
-    <url>https://github.com/khmarbaise/configuration-maven-plugin/</url>
+    <developerConnection>scm:git:ssh://git@github.com/khmarbaise/multienv-maven-plugin.git</developerConnection>
+    <connection>scm:git:https://github.com/khmarbaise/multienv-maven-plugin.git</connection>
+    <url>https://github.com/khmarbaise/multienv-maven-plugin/</url>
   </scm>
 
   <dependencyManagement>
@@ -138,7 +138,7 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-plugin-plugin</artifactId>
         <configuration>
-          <goalPrefix>configuration</goalPrefix>
+          <goalPrefix>multienv</goalPrefix>
         </configuration>
         <executions>
           <execution>
@@ -295,7 +295,7 @@
   <distributionManagement>
     <site>
       <id>github</id>
-      <url>scm:git:git@github.com:khmarbaise/configuration-maven-plugin.git</url>
+      <url>scm:git:git@github.com:khmarbaise/multienv-maven-plugin.git</url>
     </site>
   </distributionManagement>
 

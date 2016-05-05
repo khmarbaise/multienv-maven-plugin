@@ -1,9 +1,9 @@
-Configuration Maven Plugin
-==========================
+Multi Environment Maven Plugin
+==============================
 
-[![Apache License, Version 2.0, January 2004](https://img.shields.io/github/license/khmarbaise/configuration-maven-plugin.svg?label=License)](http://www.apache.org/licenses/)
-[![Build Status](https://travis-ci.org/khmarbaise/configuration-maven-plugin.svg?branch=master)](https://travis-ci.org/khmarbaise/configuration-maven-plugin)
-[![Maven Central](https://img.shields.io/maven-central/v/com.soebes.maven.plugins/configuration-maven-plugin.svg?label=Maven%20Central)](http://search.maven.org/#search%7Cga%7C1%7Ccom.soebes.maven.plugins)
+[![Apache License, Version 2.0, January 2004](https://img.shields.io/github/license/khmarbaise/multienv-maven-plugin.svg?label=License)](http://www.apache.org/licenses/)
+[![Build Status](https://travis-ci.org/khmarbaise/multienv-maven-plugin.svg?branch=master)](https://travis-ci.org/khmarbaise/multienv-maven-plugin)
+[![Maven Central](https://img.shields.io/maven-central/v/com.soebes.maven.plugins/multienv-maven-plugin.svg?label=Maven%20Central)](http://search.maven.org/#search%7Cga%7C1%7Ccom.soebes.maven.plugins)
 
 License
 -------
@@ -35,7 +35,7 @@ Let us assume you have several environments like `dev-01`, `dev-02`, `test-01`,
 less simple and we assume having only a single module build which produces a
 single `war` file as result.
 
-To use the Configuration Maven Plugin you can simple create the following
+To use the MultiEnv Maven Plugin you can simple create the following
 structure in your module:
 
      src
@@ -52,14 +52,14 @@ structure in your module:
                  └── prod
                      └── first.properties
 
-In result the Configuration Maven Plugin will automatically create the
+In result the MultiEnv Maven Plugin will automatically create the
 appropriate war files containing the configuration file `first.properties`
 which might contain some information like the database connections url etc. for
 the appropriate environment.
 
 The environment name (folder name) will automatically being used as classifier
 for the appropriate artifact. So we would get the following files after
-running Configuration Maven Plugin via ([assuming you have configured it
+running MultiEnv Maven Plugin via ([assuming you have configured it
 correctly](README.md#how-to-configure)):
 
 ```
@@ -82,7 +82,7 @@ environment folder and producing appropriate artifacts out of it.
 How To Configure
 ----------------
 
-To configure Configuration Maven Plugin you simply add the following
+To configure MultiEnv Maven Plugin you simply add the following
 to your pom file (we assume here a war file):
 
 ``` xml
@@ -96,7 +96,7 @@ to your pom file (we assume here a war file):
     <plugins>
       <plugin>
         <groupId>com.soebes.maven.plugins</groupId>
-        <artifactId>configuration-maven-plugin</artifactId>
+        <artifactId>multienv-maven-plugin</artifactId>
         <version>0.1.0</version>
         <executions>
           <execution>
@@ -135,14 +135,14 @@ Advantages
 TODO
 ----
 
- * Configuration Maven Plugin in a different maven project within multi module
+ * MultiEnv Maven Plugin in a different maven project within multi module
    build? How does that work? 
  * Overwriting of file which exist in the original artifact? How to handle?
  * Produce an artifact only for a single environment?
    `mvn -Dconfiguration.maven.environment=test-01 clean package` 
    Is this a good idea?
 
- * Name? Configuration Maven Plugin? Might be environment-maven-plugin better ?
+ * Name? MultiEnv Maven Plugin? Better one?
 
 
 [blog-multiple-environments-i]: http://blog.soebes.de/blog/2011/07/29/maven-configuration-for-multipe-environments/
