@@ -24,13 +24,13 @@
  ------
 
 
-Configuration Maven Plugin
+MultiEnv Maven Plugin
 
-  The Configuration Maven Plugin is intended to package artifacts for different environments.
+  The MultEnv Maven Plugin is intended to package artifacts for different environments.
 
 * Goals Overview
 
-  The Configuration Maven Plugin has only one goal which.
+  The MultEnv Maven Plugin has only one goal which.
 
   * {{{./configuration-mojo.html}configuration:configuration}}.
 
@@ -39,16 +39,13 @@ Configuration Maven Plugin
   General instructions on how to use the Versions Plugin can be found on the {{{./usage.html}usage page}}. Some more
   specific use cases are described in the examples given below. 
 
-  In case you still have questions regarding the plugin's usage, feel
-  free to contact the {{{./mail-lists.html}user mailing list}}. The posts to the mailing list are archived and could
-  already contain the answer to your question as part of an older thread. Hence, it is also worth browsing/searching
-  the {{{./mail-lists.html}mail archive}}.
+  In case you still have questions regarding the plugin's usage, just create
+  an issue in the {{{./issue-tracking.html}issue tracking system}} and mark it with {{{question}}}.
 
-  If you feel like the plugin is missing a feature or has a defect, you can fill a feature request or bug report in our
-  {{{./issue-tracking.html}issue tracker}}. When creating a new issue, please provide a comprehensive description of your
-  concern. Especially for fixing bugs it is crucial that the developers can reproduce your problem. For this reason,
-  entire debug logs, POMs or most preferably little demo projects attached to the issue are very much appreciated.
-  Of course, patches are welcome, too. Contributors can check out the project from our
-  {{{./source-repository.html}source repository}} and will find supplementary information in the
-  {{{http://maven.apache.org/guides/development/guide-helping.html}guide to helping with Maven}}.
+  If you feel like the plugin is missing a feature or has a defect, you can fill a feature request 
+  or bug report in our {{{./issue-tracking.html}issue tracker}}. When creating a new issue, please 
+  provide a comprehensive description of your concern. Especially for fixing bugs it is 
+  crucial that the developers can reproduce your problem. For this reason, entire debug logs, POMs 
+  or most preferably little demo projects attached to the issue are very much appreciated.
+  Of course, patches are welcome, too. 
 
