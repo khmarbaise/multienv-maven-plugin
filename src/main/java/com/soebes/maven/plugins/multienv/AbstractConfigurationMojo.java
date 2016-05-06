@@ -1,4 +1,4 @@
-package com.soebes.maven.plugins.configuration;
+package com.soebes.maven.plugins.multienv;
 
 import java.io.File;
 
