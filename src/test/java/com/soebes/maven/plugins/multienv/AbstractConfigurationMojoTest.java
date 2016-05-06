@@ -45,12 +45,16 @@ public class AbstractConfigurationMojoTest
     {
         private AbstractConfigurationMojo mojo;
 
+        private File mockFile;
+
         private static final String NON_EMPTY_STRING = "NON_EMPTY";
+
         private static final String EMPTY_STRING = "";
 
         @BeforeTest
         public void beforeTest()
         {
+            mockFile = mock( File.class );
             mojo = mock( AbstractConfigurationMojo.class, Mockito.CALLS_REAL_METHODS );
         }
 
@@ -65,7 +69,6 @@ public class AbstractConfigurationMojoTest
             IllegalArgumentException.class }, expectedExceptionsMessageRegExp = "finalName is not allowed to be null" )
         public void getArchiveFileShouldFailWithIAEFinalNameNull()
         {
-            File mockFile = mock( File.class );
             mojo.getArchiveFile( mockFile, null, NON_EMPTY_STRING, NON_EMPTY_STRING );
         }
 
@@ -73,21 +76,18 @@ public class AbstractConfigurationMojoTest
             IllegalArgumentException.class }, expectedExceptionsMessageRegExp = "archiveExt is not allowed to be null" )
         public void getArchiveFileShouldFailWithIAEArchiveExtNull()
         {
-            File mockFile = mock( File.class );
-            mojo.getArchiveFile( mockFile, new String(), NON_EMPTY_STRING, null );
+            mojo.getArchiveFile( mockFile, NON_EMPTY_STRING, NON_EMPTY_STRING, null );
         }
 
         @Test( expectedExceptions = {
-            IllegalArgumentException.class }, expectedExceptionsMessageRegExp = "archiveExt is not allowed to be null" )
+            IllegalArgumentException.class }, expectedExceptionsMessageRegExp = "archiveExt is not allowed to be empty." )
         public void getArchiveFileShouldFailWithIAEClassifierNotNull()
         {
-            File mockFile = mock( File.class );
-            mojo.getArchiveFile( mockFile, NON_EMPTY_STRING, NON_EMPTY_STRING, null );
+            mojo.getArchiveFile( mockFile, NON_EMPTY_STRING, NON_EMPTY_STRING, EMPTY_STRING );
         }
 
         public void getArchiveFileShouldNotFailWithIAEIfAllParameters()
         {
-            File mockFile = mock( File.class );
             mojo.getArchiveFile( mockFile, NON_EMPTY_STRING, NON_EMPTY_STRING, NON_EMPTY_STRING );
         }
 
@@ -95,8 +95,15 @@ public class AbstractConfigurationMojoTest
             IllegalArgumentException.class }, expectedExceptionsMessageRegExp = "finalName is not allowed to be empty." )
         public void getArchiveFileShouldFailWithFinalNameEmpty()
         {
-            File mockFile = mock( File.class );
             mojo.getArchiveFile( mockFile, EMPTY_STRING, NON_EMPTY_STRING, NON_EMPTY_STRING );
         }
+
+        @Test
+        public void getArchiveFileXXXX()
+        {
+            File result = mojo.getArchiveFile( mockFile, "finalName", null, "jar" );
+            assertThat( result ).isEqualTo( "finalName.jar" );
+        }
+
     }
 }

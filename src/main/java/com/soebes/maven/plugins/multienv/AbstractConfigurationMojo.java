@@ -147,6 +147,10 @@ public abstract class AbstractConfigurationMojo
         {
             throw new IllegalArgumentException( "finalName is not allowed to be empty." );
         }
+        if ( archiveExt.isEmpty() )
+        {
+            throw new IllegalArgumentException( "archiveExt is not allowed to be empty." );
+        }
 
         StringBuilder fileName = new StringBuilder( finalName );
 
