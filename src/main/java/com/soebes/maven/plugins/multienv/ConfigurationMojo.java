@@ -396,47 +396,4 @@ public class ConfigurationMojo
 
     }
 
-    /**
-     * Returns the archive file to generate, based on an optional classifier.
-     *
-     * @param basedir the output directory
-     * @param finalName the name of the ear file
-     * @param classifier an optional classifier
-     * @return the file to generate
-     */
-    private File getArchiveFile( File basedir, String finalName, String classifier, String archiveExt )
-    {
-        if ( basedir == null )
-        {
-            throw new IllegalArgumentException( "basedir is not allowed to be null" );
-        }
-        if ( finalName == null )
-        {
-            throw new IllegalArgumentException( "finalName is not allowed to be null" );
-        }
-
-        StringBuilder fileName = new StringBuilder( finalName );
-
-        if ( hasClassifier( classifier ) )
-        {
-            fileName.append( "-" ).append( classifier );
-        }
-
-        fileName.append( '.' );
-        fileName.append( archiveExt );
-
-        return new File( basedir, fileName.toString() );
-    }
-
-    private boolean hasClassifier( String classifier )
-    {
-        boolean result = false;
-        if ( classifier != null && classifier.trim().length() > 0 )
-        {
-            result = true;
-        }
-
-        return result;
-    }
-
 }
