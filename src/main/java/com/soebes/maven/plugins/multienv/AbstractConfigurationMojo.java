@@ -9,6 +9,7 @@ import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.MavenProjectHelper;
+import org.codehaus.plexus.util.DirectoryScanner;
 
 public abstract class AbstractConfigurationMojo
     extends AbstractMojo
@@ -35,7 +36,7 @@ public abstract class AbstractConfigurationMojo
     /**
      * folder which contains the different environments
      */
-    //TODO: src/main ? property?
+    // TODO: src/main ? property?
     @Parameter( defaultValue = "${basedir}/src/main/environments" )
     private File sourceDirectory;
 
@@ -99,6 +100,24 @@ public abstract class AbstractConfigurationMojo
     public String getEncoding()
     {
         return encoding;
+    }
+
+    /**
+     * @param resourceResult The folder where to search for different environments.
+     * @return The list of identified environments.
+     */
+    protected String[] getTheEnvironments( File resourceResult )
+    {
+        DirectoryScanner ds = new DirectoryScanner();
+        ds.setBasedir( resourceResult );
+        // It is necessary to exclude the {@code ""} cause
+        // otherwise we would get back this as well.
+        // Bug?
+        ds.setExcludes( new String[] { "" } );
+        ds.addDefaultExcludes();
+        ds.scan();
+
+        return ds.getIncludedDirectories();
     }
 
 }

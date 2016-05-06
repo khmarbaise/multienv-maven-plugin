@@ -28,7 +28,6 @@ import org.codehaus.plexus.archiver.jar.ManifestException;
 import org.codehaus.plexus.archiver.manager.ArchiverManager;
 import org.codehaus.plexus.archiver.manager.NoSuchArchiverException;
 import org.codehaus.plexus.archiver.util.DefaultFileSet;
-import org.codehaus.plexus.util.DirectoryScanner;
 import org.codehaus.plexus.util.FileUtils;
 
 /**
@@ -252,7 +251,17 @@ public class ConfigurationMojo
     public void execute()
         throws MojoExecutionException, MojoFailureException
     {
+        String[] identifiedEnvironments = getTheEnvironments( getSourceDirectory() );
 
+        if ( identifiedEnvironments.length == 0 )
+        {
+            getLog().warn( "No Environment folders found." );
+            return;
+        }
+
+        createLoggingOutput( identifiedEnvironments );
+
+        
         String archiveExt = getArchiveExtensionOfTheProjectMainArtifact();
 
         File unpackFolder = createUnpackFolder();
@@ -265,38 +274,7 @@ public class ConfigurationMojo
         // TODO: May be should make this configurable?
         unarchiveFile( getMavenProject().getArtifact().getFile(), unpackFolder, archiveExt );
 
-        DirectoryScanner ds = new DirectoryScanner();
-        ds.setBasedir( resourceResult );
-        ds.setExcludes( new String[] { ".", "" } ); // Work a round ?
-        ds.addDefaultExcludes();
-
-        ds.scan();
-
-        String[] includedDirectories = ds.getIncludedDirectories();
-
-        if ( includedDirectories.length == 0 )
-        {
-            getLog().warn( "No folders found." );
-            return;
-        }
-
-        getLog().info( "" );
-        getLog().info( "We have found " + includedDirectories.length + " environments." );
-
-        StringBuilder sb = new StringBuilder();
-        for ( int i = 0; i < includedDirectories.length; i++ )
-        {
-            if ( sb.length() > 0 )
-            {
-                sb.append( ',' );
-            }
-            sb.append( includedDirectories[i] );
-        }
-
-        getLog().info( "We have the following environments: " + sb.toString() );
-        getLog().info( "" );
-
-        for ( String folder : includedDirectories )
+        for ( String folder : identifiedEnvironments )
         {
             getLog().info( "Building Environment: '" + folder + "'" );
 
@@ -324,6 +302,25 @@ public class ConfigurationMojo
             }
         }
 
+    }
+
+    private void createLoggingOutput( String[] identifiedEnvironments )
+    {
+        getLog().info( "" );
+        getLog().info( "We have found " + identifiedEnvironments.length + " environments." );
+
+        StringBuilder sb = new StringBuilder();
+        for ( int i = 0; i < identifiedEnvironments.length; i++ )
+        {
+            if ( sb.length() > 0 )
+            {
+                sb.append( ',' );
+            }
+            sb.append( identifiedEnvironments[i] );
+        }
+
+        getLog().info( "We have the following environments: " + sb.toString() );
+        getLog().info( "" );
     }
 
     private void createGZIPArchive( String includes )
