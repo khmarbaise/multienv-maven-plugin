@@ -24,7 +24,6 @@
   </prerequisites>
 
   <properties>
-    <scmpublish.content>target/staging/</scmpublish.content>
     <smpp.component>multienv-maven-plugin</smpp.component>
   </properties>
 
