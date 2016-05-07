@@ -11,7 +11,7 @@ import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.MavenProjectHelper;
 import org.codehaus.plexus.util.DirectoryScanner;
 
-public abstract class AbstractConfigurationMojo
+public abstract class AbstractMultiEnvMojo
     extends AbstractMojo
 {
 

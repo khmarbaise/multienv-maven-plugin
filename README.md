@@ -143,6 +143,9 @@ TODO
    Is this a good idea?
  * Create only separate environment package for each environment.
    instead of merging it with the current package.
+ * Do filtering for each environment separately. So we could inject
+   the name of the environment. This can be used put the name of the
+   environment into the resulting files via filtering.
 
 
 [blog-multiple-environments-i]: http://blog.soebes.de/blog/2011/07/29/maven-configuration-for-multipe-environments/

@@ -56,7 +56,7 @@ under the License.
         <executions>
           <execution>
             <goals>
-              <goal>configuration</goal>
+              <goal>environment</goal>
             </goals>
           </execution>
         </executions>

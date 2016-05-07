@@ -10,18 +10,18 @@ import org.testng.annotations.Test;
 
 import static org.mockito.Mockito.mock;
 
-public class AbstractConfigurationMojoTest
+public class AbstractMultiEnvMojoTest
     extends UnitTestBase
 {
     public class GetTheEnvironmentTest
     {
 
-        private AbstractConfigurationMojo mojo;
+        private AbstractMultiEnvMojo mojo;
 
         @BeforeTest
         public void beforeTest()
         {
-            mojo = mock( AbstractConfigurationMojo.class, Mockito.CALLS_REAL_METHODS );
+            mojo = mock( AbstractMultiEnvMojo.class, Mockito.CALLS_REAL_METHODS );
         }
 
         @Test
@@ -43,7 +43,7 @@ public class AbstractConfigurationMojoTest
 
     public class GetArchiveFileTest
     {
-        private AbstractConfigurationMojo mojo;
+        private AbstractMultiEnvMojo mojo;
 
         private File mockFile;
 
@@ -55,7 +55,7 @@ public class AbstractConfigurationMojoTest
         public void beforeTest()
         {
             mockFile = mock( File.class );
-            mojo = mock( AbstractConfigurationMojo.class, Mockito.CALLS_REAL_METHODS );
+            mojo = mock( AbstractMultiEnvMojo.class, Mockito.CALLS_REAL_METHODS );
         }
 
         @Test( expectedExceptions = {

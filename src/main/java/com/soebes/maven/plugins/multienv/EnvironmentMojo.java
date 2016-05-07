@@ -22,6 +22,7 @@ import org.apache.maven.shared.filtering.MavenResourcesExecution;
 import org.apache.maven.shared.filtering.MavenResourcesFiltering;
 import org.codehaus.plexus.archiver.Archiver;
 import org.codehaus.plexus.archiver.ArchiverException;
+import org.codehaus.plexus.archiver.UnArchiver;
 import org.codehaus.plexus.archiver.jar.JarArchiver;
 import org.codehaus.plexus.archiver.jar.ManifestException;
 import org.codehaus.plexus.archiver.manager.ArchiverManager;
@@ -30,13 +31,15 @@ import org.codehaus.plexus.archiver.util.DefaultFileSet;
 import org.codehaus.plexus.util.FileUtils;
 
 /**
- * This goal will create separate packages out of the 
- * given environment folder.
+ * This mojo will get the main artifact of the current project unpack it 
+ * and use the files of the appropriate environment and produce new
+ * files which contain the original files and the supplemental files
+ * which have been given by the configuration for each environment.
  * 
  * @author Karl-Heinz Marbaise <a href="mailto:khmarbaise@soebes.de">khmarbaise@soebes.de</a>
  */
-@Mojo( name = "configuration", defaultPhase = LifecyclePhase.PACKAGE, requiresProject = true, threadSafe = true )
-public class ConfigurationMojo
+@Mojo( name = "environment", defaultPhase = LifecyclePhase.PACKAGE, requiresProject = true, threadSafe = true )
+public class EnvironmentMojo
     extends AbstractMultiEnvMojo
 {
 
@@ -54,13 +57,6 @@ public class ConfigurationMojo
 
     @Component( role = MavenFileFilter.class, hint = "default" )
     private MavenFileFilter mavenFileFilter;
-
-    /**
-     * The kind of archive we should produce 
-     * {@code zip}, {code jar} etc.
-     */
-    @Parameter( defaultValue = "jar" )
-    private String archiveType;
 
     /**
      * Expression preceded with the String won't be interpolated \${foo} will be replaced with ${foo}
@@ -268,9 +264,18 @@ public class ConfigurationMojo
         createLoggingOutput( identifiedEnvironments );
 
         
+        String archiveExt = getArchiveExtensionOfTheProjectMainArtifact();
+
+        File unpackFolder = createUnpackFolder();
+
         File resourceResult = createPluginResourceOutput();
 
         filterResources( resourceResult );
+
+        // Currently we use the main artifact of the project
+        // TODO: May be should make this configurable? So we might use any kind of artifact
+        // as source?
+        unarchiveFile( getMavenProject().getArtifact().getFile(), unpackFolder, archiveExt );
 
         for ( String environment : identifiedEnvironments )
         {
@@ -286,7 +291,7 @@ public class ConfigurationMojo
             try
             {
                 File targetFolder = new File( resourceResult, environment );
-                File createArchiveFile = createArchiveFile( targetFolder, environment, archiveType );
+                File createArchiveFile = createArchiveFile( unpackFolder, targetFolder, environment, archiveExt );
                 getProjectHelper().attachArtifact( getMavenProject(), getMavenProject().getPackaging(), environment,
                                                    createArchiveFile );
             }
@@ -321,7 +326,52 @@ public class ConfigurationMojo
         getLog().info( "" );
     }
 
-    private File createArchiveFile( File targetFolder, String folder, String archiveExt )
+    private void createGZIPArchive( String includes )
+        throws IOException, NoSuchArchiverException
+    {
+        try
+        {
+            File baseFolder = new File( getSourceDirectory(), includes );
+            File theOriginalFile = new File( baseFolder, "first.properties" );
+            Archiver gzipArchiver = manager.getArchiver( "gzip" );
+
+            gzipArchiver.addFile( theOriginalFile, "first.properties.gz" );
+
+            gzipArchiver.setDestFile( new File( baseFolder, "first.properties.gz" ) );
+            gzipArchiver.createArchive();
+        }
+        catch ( ArchiverException e )
+        {
+            getLog().error( "Archive creation failed.", e );
+        }
+
+    }
+
+    private void unarchiveFile( File sourceFile, File destDirectory, String archiveExt )
+        throws MojoExecutionException
+    {
+        try
+        {
+            UnArchiver unArchiver = manager.getUnArchiver( archiveExt );
+
+            unArchiver.setSourceFile( sourceFile );
+            unArchiver.setUseJvmChmod( true );
+            unArchiver.setDestDirectory( destDirectory );
+            unArchiver.setOverwrite( true );
+            unArchiver.extract();
+        }
+        catch ( ArchiverException e )
+        {
+            throw new MojoExecutionException( "Error unpacking file [" + sourceFile.getAbsolutePath() + "]" + " to ["
+                + destDirectory.getAbsolutePath() + "]", e );
+        }
+        catch ( NoSuchArchiverException e )
+        {
+            getLog().error( "Unknown archiver." + " with unknown extension [" + archiveExt + "]" );
+        }
+    }
+
+    private File createArchiveFile( File unpackFolder, File targetFolder, String folder, String archiveExt )
         throws NoSuchArchiverException, IOException, MojoExecutionException
     {
         final MavenArchiver mavenArchiver = new MavenArchiver();
@@ -329,6 +379,7 @@ public class ConfigurationMojo
         mavenArchiver.setArchiver( jarArchiver );
 
         jarArchiver.addFileSet( new DefaultFileSet( targetFolder ) );
+        jarArchiver.addFileSet( new DefaultFileSet( unpackFolder ) );
         // jarArchiver.setDuplicateBehavior( duplicate );
 
         File resultArchive = getArchiveFile( getOutputDirectory(), getFinalName(), folder, archiveExt );
