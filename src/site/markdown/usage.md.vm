@@ -1,0 +1,34 @@
+Usage
+=====
+
+Configuration
+-------------
+
+
+To configure MultiEnv Maven Plugin you simply add the following
+to your pom file (we assume here a war file):
+
+``` xml
+
+  <groupId>groupId</groupId>
+  <artifactId>artifactId</artifactId>
+  <version>0.1-SNAPSHOT</version>
+  <packaging>war</packaging>
+  ...
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>com.soebes.maven.plugins</groupId>
+        <artifactId>multienv-maven-plugin</artifactId>
+        <version>${project.version}</version>
+        <executions>
+          <execution>
+            <goals>
+              <goal>configuration</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+```
