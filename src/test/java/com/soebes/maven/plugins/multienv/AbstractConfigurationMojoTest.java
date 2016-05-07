@@ -99,11 +99,17 @@ public class AbstractConfigurationMojoTest
         }
 
         @Test
-        public void getArchiveFileXXXX()
+        public void getArchiveFileShouldReturnFinalNameJar()
         {
-            File result = mojo.getArchiveFile( mockFile, "finalName", null, "jar" );
-            assertThat( result ).isEqualTo( "finalName.jar" );
+            File result = mojo.getArchiveFile( new File("."), "finalName", null, "jar" );
+            assertThat( result.getName() ).isEqualTo( "finalName.jar" );
         }
 
+        @Test
+        public void getArchiveFileShouldReturnFinalNameWithClassifierJar()
+        {
+            File result = mojo.getArchiveFile( new File("."), "finalName", "cls", "jar" );
+            assertThat( result.getName() ).isEqualTo( "finalName-cls.jar" );
+        }
     }
 }
