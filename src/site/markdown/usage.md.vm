@@ -1,12 +1,44 @@
 Usage
 =====
 
+Environments
+------------
+
+If you like to produce environment agnostic result artifacts
+you simply configure MultiEnv Maven Plugin like the following 
+(we assume here a war file):
+
+``` xml
+
+  <groupId>groupId</groupId>
+  <artifactId>artifactId</artifactId>
+  <version>0.1-SNAPSHOT</version>
+  <packaging>war</packaging>
+  ...
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>com.soebes.maven.plugins</groupId>
+        <artifactId>multienv-maven-plugin</artifactId>
+        <version>${project.version}</version>
+        <executions>
+          <execution>
+            <goals>
+              <goal>environment</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+```
+
 Configuration
 -------------
 
-
-To configure MultiEnv Maven Plugin you simply add the following
-to your pom file (we assume here a war file):
+If you like to produce a configuration artifact for each environment
+you can configure that by adding the MultiEnv Maven Plugin to your 
+pom file like this:
 
 ``` xml
 

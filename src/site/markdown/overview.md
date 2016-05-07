@@ -60,3 +60,6 @@ This would result into the following artifact list:
   * artifactId-version-prod.war
   * artifactId-version-qa-01.war
 
+Those artifacts are ready to be deployed to the appropriate environment
+(Of course the application inside must handle the reading of the configuration
+files).
