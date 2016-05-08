@@ -1,9 +1,9 @@
 Multi Environment Maven Plugin
 ==============================
 
-[![Apache License, Version 2.0, January 2004](https://img.shields.io/github/license/khmarbaise/multienv-maven-plugin.svg?label=License)](http://www.apache.org/licenses/)
-[![Build Status](https://travis-ci.org/khmarbaise/multienv-maven-plugin.svg?branch=master)](https://travis-ci.org/khmarbaise/multienv-maven-plugin)
-[![Maven Central](https://img.shields.io/maven-central/v/com.soebes.maven.plugins/multienv-maven-plugin.svg?label=Maven%20Central)](http://search.maven.org/#search%7Cga%7C1%7Ccom.soebes.maven.plugins)
+[![Apache License, Version 2.0, January 2004][shield-license]][apache-license]
+[![Build Status][build-status]][travis-ci]
+[![Maven Central][shield-central]][maven-central]
 
 License
 -------
@@ -152,3 +152,9 @@ TODO
 [blog-multiple-environments-ii]: http://blog.soebes.de/blog/2011/08/11/maven-configuration-for-multipe-environments-ii/
 [iterator-plugin]: http://khmarbaise.github.io/iterator-maven-plugin/
 [iterator-plugin-map]: https://github.com/khmarbaise/iterator-maven-plugin/blob/master/src/it/mavenAssemblyPluginTest/pom.xml
+[maven-central]: http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.soebes.maven.plugins%22%20a%3A%22multienv-maven-plugin%22
+[apache-license]: http://www.apache.org/licenses/
+[travis-ci]: https://travis-ci.org/khmarbaise/multienv-maven-plugin
+[build-status]: http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.soebes.maven.plugins%22%20a%3A%22multienv-maven-plugin%22
+[shield-central]: http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.soebes.maven.plugins%22%20a%3A%22multienv-maven-plugin%22
+[shield-license]: http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.soebes.maven.plugins%22%20a%3A%22multienv-maven-plugin%22
