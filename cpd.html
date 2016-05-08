@@ -9,7 +9,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="Date-Revision-yyyymmdd" content="20160508" />
     <meta http-equiv="Content-Language" content="en" />
-    <title>The MultiEnv Maven Plugin &#x2013; Plugin Documentation</title>
+    <title>The MultiEnv Maven Plugin &#x2013; CPD Results</title>
     <link rel="stylesheet" href="./css/apache-maven-fluido-1.5.min.css" />
     <link rel="stylesheet" href="./css/site.css" />
     <link rel="stylesheet" href="./css/print.css" media="print" />
@@ -212,10 +212,12 @@
         Overview</a>
             </li>
                 
-      <li class="active">
+      <li>
   
-            <a href="#"><span class="none"></span>Goals</a>
-          </li>
+                          <a href="plugin-info.html" title="Goals">
+          <span class="none"></span>
+        Goals</a>
+            </li>
                 
       <li>
   
@@ -288,12 +290,10 @@
         Test JavaDocs</a>
             </li>
                     
-      <li>
+      <li class="active">
   
-                          <a href="cpd.html" title="CPD">
-          <span class="none"></span>
-        CPD</a>
-            </li>
+            <a href="#"><span class="none"></span>CPD</a>
+          </li>
                     
       <li>
   
@@ -337,10 +337,12 @@
         Tag List</a>
             </li>
                     
-      <li class="active">
+      <li>
   
-            <a href="#"><span class="none"></span>Plugin Documentation</a>
-          </li>
+                          <a href="plugin-info.html" title="Plugin Documentation">
+          <span class="none"></span>
+        Plugin Documentation</a>
+            </li>
               </ul>
         </li>
             </ul>
@@ -370,74 +372,271 @@
         <div id="bodyColumn"  class="span10" >
                                   
             <div class="section">
-<h2><a name="Plugin_Documentation"></a>Plugin Documentation</h2><a name="Plugin_Documentation"></a>
-<p>Goals available for this plugin:</p>
+<h2><a name="CPD_Results"></a>CPD Results</h2>
+<p>The following document contains the results of PMD's  <a class="externalLink" href="http://pmd.sourceforge.net/cpd.html">CPD</a> 5.3.5.</p></div>
+<div class="section">
+<h2><a name="Duplications"></a>Duplications</h2>
 <table border="0" class="table table-striped">
 <tr class="a">
-<th>Goal</th>
-<th>Description</th></tr>
+<th>File</th>
+<th>Line</th></tr>
 <tr class="b">
-<td><a href="configuration-mojo.html">multienv:configuration</a></td>
-<td>This goal will create separate packages out of the given
-environment folder.</td></tr>
+<td>com/soebes/maven/plugins/multienv/ConfigurationMojo.java</td>
+<td><a href="./xref/com/soebes/maven/plugins/multienv/ConfigurationMojo.html#L68">68</a></td></tr>
 <tr class="a">
-<td><a href="environment-mojo.html">multienv:environment</a></td>
-<td>This mojo will get the main artifact of the current project unpack
-it and use the files of the appropriate environment and produce new
-files which contain the original files and the supplemental files
-which have been given by the configuration for each environment.</td></tr>
-<tr class="b">
-<td><a href="help-mojo.html">multienv:help</a></td>
-<td>Display help information on multienv-maven-plugin.<br />
-Call <code>mvn multienv:help -Ddetail=true
--Dgoal=&lt;goal-name&gt;</code> to display parameter details.</td></tr></table>
-<div class="section">
-<h3><a name="System_Requirements"></a>System Requirements</h3><a name="System_Requirements"></a>
-<p>The following specifies the minimum requirements to run this Maven plugin:</p>
+<td>com/soebes/maven/plugins/multienv/EnvironmentMojo.java</td>
+<td><a href="./xref/com/soebes/maven/plugins/multienv/EnvironmentMojo.html#L64">64</a></td></tr>
+<tr class="b"><td colspan='2'>
+<div>
+<pre>    @Parameter
+    private String escapeString;
+
+    /**
+     * Whether to escape backslashes and colons in windows-style paths.
+     */
+    @Parameter( defaultValue = &quot;true&quot; )
+    private boolean escapeWindowsPaths;
+
+    /**
+     * The list of extra filter properties files to be used along with System properties, project properties, and filter
+     * properties files specified in the POM build/filters section, which should be used for the filtering during the
+     * current mojo execution. &lt;br/&gt;
+     * Normally, these will be configured from a plugin's execution section, to provide a different set of filters for a
+     * particular execution. For instance, starting in Maven 2.2.0, you have the option of configuring executions with
+     * the id's &lt;code&gt;default-resources&lt;/code&gt; and &lt;code&gt;default-testResources&lt;/code&gt; to supply different configurations
+     * for the two different types of resources. By supplying &lt;code&gt;extraFilters&lt;/code&gt; configurations, you can separate
+     * which filters are used for which type of resource.
+     */
+    @Parameter
+    private List&lt;String&gt; filters;
+
+    /**
+     * Support filtering of filenames folders etc.
+     */
+    @Parameter( defaultValue = &quot;false&quot; )
+    private boolean fileNameFiltering;
+
+    /**
+     * &lt;p&gt;
+     * Set of delimiters for expressions to filter within the resources. These delimiters are specified in the form
+     * 'beginToken*endToken'. If no '*' is given, the delimiter is assumed to be the same for start and end.
+     * &lt;/p&gt;
+     * &lt;p&gt;
+     * So, the default filtering delimiters might be specified as:
+     * &lt;/p&gt;
+     * 
+     * &lt;pre&gt;
+     * &amp;lt;delimiters&amp;gt;
+     *   &amp;lt;delimiter&amp;gt;${*}&amp;lt;/delimiter&amp;gt;
+     *   &amp;lt;delimiter&amp;gt;@&amp;lt;/delimiter&amp;gt;
+     * &amp;lt;/delimiters&amp;gt;
+     * &lt;/pre&gt;
+     * &lt;p&gt;
+     * Since the '@' delimiter is the same on both ends, we don't need to specify '@*@' (though we can).
+     * &lt;/p&gt;
+     */
+    @Parameter
+    private LinkedHashSet&lt;String&gt; delimiters;
+
+    /**
+     * Use default delimiters in addition to custom delimiters, if any.
+     */
+    @Parameter( defaultValue = &quot;true&quot; )
+    private boolean useDefaultDelimiters;
+
+    /**
+     * Additional file extensions to not apply filtering (already defined are : jpg, jpeg, gif, bmp, png)
+     */
+    @Parameter
+    private List&lt;String&gt; nonFilteredFileExtensions;
+
+    /**
+     * stop searching endToken at the end of line
+     */
+    @Parameter( defaultValue = &quot;false&quot; )
+    private boolean supportMultiLineFiltering;
+
+    /**
+     * Create the unpack folder for later unpacking of the main artifact.
+     * 
+     * @return The folder which has been created.
+     * @throws MojoExecutionException in case of failures.
+     */
+    private File createUnpackFolder()
+        throws MojoFailureException, MojoExecutionException
+    {
+        // TODO: Should we use a different name or temp file? File.createTempFile( prefix, suffix );
+        File unpackFolder = new File( getOutputDirectory(), &quot;configuration-maven-plugin-unpack&quot; );
+
+        deleteFolderOfPreviousRunIfExist( unpackFolder );
+
+        if ( !unpackFolder.mkdirs() )
+        {
+            throw new MojoExecutionException( &quot;The unpack folder &quot; + unpackFolder.getAbsolutePath()
+                + &quot; couldn't generated!&quot; );
+        }
+        return unpackFolder;
+    }
+
+    private void deleteFolderOfPreviousRunIfExist( File folderOfPreviousRun )
+        throws MojoExecutionException
+    {
+        
+        if ( folderOfPreviousRun.exists() )
+        {
+            try
+            {
+                FileUtils.deleteDirectory( folderOfPreviousRun );
+            }
+            catch ( IOException e )
+            {
+                throw new MojoExecutionException( &quot;Failure while deleting &quot; + folderOfPreviousRun.getAbsolutePath(),
+                                                  e );
+            }
+        }
+    }
+
+    private void filterResources( File outputDirectory )
+        throws MojoExecutionException
+    {
+
+        Resource res = new Resource();
+        // TODO: Check how to prevent hard coding here?
+        res.setDirectory( getSourceDirectory().getAbsolutePath() );
+        res.setFiltering( true );
+        // TODO: Check if it makes sense to make this list configurable?
+        res.setIncludes( Collections.singletonList( &quot;**/*&quot; ) );
+
+        List&lt;String&gt; filtersFile = new ArrayList&lt;String&gt;();
+        MavenResourcesExecution execution =
+            new MavenResourcesExecution( Collections.singletonList( res ), outputDirectory, getMavenProject(),
+                                         getEncoding(), filtersFile, nonFilteredFileExtensions, getMavenSession() );
+
+        execution.setEscapeString( escapeString );
+        execution.setSupportMultiLineFiltering( supportMultiLineFiltering );
+        // TODO: Check if we need a parameter?
+        execution.setIncludeEmptyDirs( true );
+        execution.setEscapeWindowsPaths( escapeWindowsPaths );
+        execution.setFilterFilenames( fileNameFiltering );
+        //// execution.setFilters( filters );
+        //
+        // // TODO: Check if we need a parameter?
+        execution.setOverwrite( true );
+        execution.setDelimiters( delimiters, useDefaultDelimiters );
+        execution.setEncoding( getEncoding() );
+        //
+        // execution.setUseDefaultFilterWrappers( true );
+
+        if ( nonFilteredFileExtensions != null )
+        {
+            execution.setNonFilteredFileExtensions( nonFilteredFileExtensions );
+        }
+
+        try
+        {
+            mavenResourcesFiltering.filterResources( execution );
+        }
+        catch ( MavenFilteringException e )
+        {
+            getLog().error( &quot;Failure during filtering.&quot;, e );
+            throw new MojoExecutionException( &quot;Failure during filtering&quot;, e );
+        }
+
+    }
+
+    private String getArchiveExtensionOfTheProjectMainArtifact()
+        throws MojoExecutionException
+    {
+        if ( getMavenProject().getArtifact() == null )
+        {
+            throw new MojoExecutionException( &quot;No main artifact has been set yet.&quot; );
+        }
+
+        if ( getMavenProject().getArtifact().getFile() == null )
+        {
+            throw new MojoExecutionException( &quot;No main artifact file has been set yet.&quot; );
+        }
+
+        return FileUtils.getExtension( getMavenProject().getArtifact().getFile().getAbsolutePath() ).toLowerCase();
+
+    }
+
+    private File createPluginResourceOutput()
+        throws MojoExecutionException
+    {
+        // TODO: Should we use a different name? Or temp File?
+        File resourceResult = new File( getOutputDirectory(), &quot;configuration-maven-plugin-resource-output&quot; );
+
+        deleteFolderOfPreviousRunIfExist( resourceResult );
+
+        if ( !resourceResult.mkdirs() )
+        {
+            throw new MojoExecutionException( &quot;Failure while trying to create &quot; + resourceResult.getAbsolutePath() );
+        }
+
+        return resourceResult;
+    }
+
+    public void execute()
+        throws MojoExecutionException, MojoFailureException
+    {
+        String[] identifiedEnvironments = getTheEnvironments( getSourceDirectory() );
+
+        if ( identifiedEnvironments.length == 0 )
+        {
+            getLog().warn( &quot;No Environment folders found.&quot; );
+            return;
+        }
+
+        createLoggingOutput( identifiedEnvironments );</pre></div></td></tr></table>
 <table border="0" class="table table-striped">
 <tr class="a">
-<td>Maven</td>
-<td>3.0</td></tr>
+<th>File</th>
+<th>Line</th></tr>
 <tr class="b">
-<td>JDK</td>
-<td>1.7</td></tr>
+<td>com/soebes/maven/plugins/multienv/ConfigurationMojo.java</td>
+<td><a href="./xref/com/soebes/maven/plugins/multienv/ConfigurationMojo.html#L289">289</a></td></tr>
 <tr class="a">
-<td>Memory</td>
-<td>No minimum requirement.</td></tr>
-<tr class="b">
-<td>Disk Space</td>
-<td>No minimum requirement.</td></tr></table></div>
-<div class="section">
-<h3><a name="Usage"></a>Usage</h3><a name="Usage"></a>
-<p>You should specify the version in your project's plugin configuration:</p>
-<div class="source"><pre class="prettyprint">&lt;project&gt;
-  ...
-  &lt;build&gt;
-    &lt;!-- To define the plugin version in your parent POM --&gt;
-    &lt;pluginManagement&gt;
-      &lt;plugins&gt;
-        &lt;plugin&gt;
-          &lt;groupId&gt;com.soebes.maven.plugins&lt;/groupId&gt;
-          &lt;artifactId&gt;multienv-maven-plugin&lt;/artifactId&gt;
-          &lt;version&gt;0.1.0-SNAPSHOT&lt;/version&gt;
-        &lt;/plugin&gt;
-        ...
-      &lt;/plugins&gt;
-    &lt;/pluginManagement&gt;
-    &lt;!-- To use the plugin goals in your POM or parent POM --&gt;
-    &lt;plugins&gt;
-      &lt;plugin&gt;
-        &lt;groupId&gt;com.soebes.maven.plugins&lt;/groupId&gt;
-        &lt;artifactId&gt;multienv-maven-plugin&lt;/artifactId&gt;
-        &lt;version&gt;0.1.0-SNAPSHOT&lt;/version&gt;
-      &lt;/plugin&gt;
-      ...
-    &lt;/plugins&gt;
-  &lt;/build&gt;
-  ...
-&lt;/project&gt;
-</pre></div>
-<p>For more information, see <a class="externalLink" href="http://maven.apache.org/guides/mini/guide-configuring-plugins.html">&quot;Guide to Configuring Plug-ins&quot;</a></p></div></div>
+<td>com/soebes/maven/plugins/multienv/EnvironmentMojo.java</td>
+<td><a href="./xref/com/soebes/maven/plugins/multienv/EnvironmentMojo.html#L294">294</a></td></tr>
+<tr class="b"><td colspan='2'>
+<div>
+<pre>                File createArchiveFile = createArchiveFile( targetFolder, environment, archiveType );
+                getProjectHelper().attachArtifact( getMavenProject(), getMavenProject().getPackaging(), environment,
+                                                   createArchiveFile );
+            }
+            catch ( NoSuchArchiverException e )
+            {
+                getLog().error( &quot;Archive creation failed.&quot;, e );
+            }
+            catch ( IOException e )
+            {
+                getLog().error( &quot;IO Exception.&quot;, e );
+            }
+        }
+
+    }
+
+    private void createLoggingOutput( String[] identifiedEnvironments )
+    {
+        getLog().info( &quot;&quot; );
+        getLog().info( &quot;We have found &quot; + identifiedEnvironments.length + &quot; environments.&quot; );
+
+        StringBuilder sb = new StringBuilder();
+        for ( int i = 0; i &lt; identifiedEnvironments.length; i++ )
+        {
+            if ( sb.length() &gt; 0 )
+            {
+                sb.append( ',' );
+            }
+            sb.append( identifiedEnvironments[i] );
+        }
+
+        getLog().info( &quot;We have the following environments: &quot; + sb.toString() );
+        getLog().info( &quot;&quot; );
+    }
+
+    private File createArchiveFile( File targetFolder, String folder, String archiveExt )</pre></div></td></tr></table></div>
                   </div>
             </div>
           </div>
