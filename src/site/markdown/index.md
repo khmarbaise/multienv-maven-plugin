@@ -14,7 +14,7 @@ Goals Overview
 
   The MultEnv Maven Plugin has two goals:
 
-  * [multienv:environments](./environments-mojo.html)
+  * [multienv:environment](./environment-mojo.html)
   * [multienv:configuration](./configuration-mojo.html)
 
 Usage
