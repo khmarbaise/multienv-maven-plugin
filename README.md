@@ -157,4 +157,4 @@ TODO
 [travis-ci]: https://travis-ci.org/khmarbaise/multienv-maven-plugin
 [build-status]: https://travis-ci.org/khmarbaise/multienv-maven-plugin.svg?branch=master
 [shield-central]: https://img.shields.io/maven-central/v/com.soebes.maven.plugins/multienv-maven-plugin.svg?label=Maven%20Central
-[shield-license]: http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.soebes.maven.plugins%22%20a%3A%22multienv-maven-plugin%22
+[shield-license]: https://img.shields.io/github/license/khmarbaise/iterator-maven-plugin.svg?label=License
