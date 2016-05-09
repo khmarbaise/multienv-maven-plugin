@@ -134,6 +134,12 @@ public abstract class AbstractMultiEnvMojo
     private boolean useDefaultDelimiters;
 
     /**
+     * Include empty directories or not.
+     */
+    @Parameter( defaultValue = "true" )
+    private boolean includeEmptyDirs;
+
+    /**
      * Additional file extensions to not apply filtering (already defined are : jpg, jpeg, gif, bmp, png)
      */
     @Parameter
@@ -375,6 +381,16 @@ public abstract class AbstractMultiEnvMojo
         return resourceResult;
     }
 
+    public boolean isIncludeEmptyDirs()
+    {
+        return includeEmptyDirs;
+    }
+
+    public void setIncludeEmptyDirs( boolean includeEmptyDirs )
+    {
+        this.includeEmptyDirs = includeEmptyDirs;
+    }
+
     protected void filterResources( File outputDirectory )
         throws MojoExecutionException
     {
@@ -394,8 +410,7 @@ public abstract class AbstractMultiEnvMojo
 
         execution.setEscapeString( getEscapeString() );
         execution.setSupportMultiLineFiltering( isSupportMultiLineFiltering() );
-        // TODO: Check if we need a parameter?
-        execution.setIncludeEmptyDirs( true );
+        execution.setIncludeEmptyDirs( isIncludeEmptyDirs() );
         execution.setEscapeWindowsPaths( isEscapeWindowsPaths() );
         execution.setFilterFilenames( isFileNameFiltering() );
         //// execution.setFilters( filters );
