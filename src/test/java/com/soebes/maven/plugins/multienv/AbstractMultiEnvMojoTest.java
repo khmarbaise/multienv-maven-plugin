@@ -101,14 +101,14 @@ public class AbstractMultiEnvMojoTest
         @Test
         public void getArchiveFileShouldReturnFinalNameJar()
         {
-            File result = mojo.getArchiveFile( new File("."), "finalName", null, "jar" );
+            File result = mojo.getArchiveFile( new File( "." ), "finalName", null, "jar" );
             assertThat( result.getName() ).isEqualTo( "finalName.jar" );
         }
 
         @Test
         public void getArchiveFileShouldReturnFinalNameWithClassifierJar()
         {
-            File result = mojo.getArchiveFile( new File("."), "finalName", "cls", "jar" );
+            File result = mojo.getArchiveFile( new File( "." ), "finalName", "cls", "jar" );
             assertThat( result.getName() ).isEqualTo( "finalName-cls.jar" );
         }
     }

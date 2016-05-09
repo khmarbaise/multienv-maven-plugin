@@ -305,7 +305,7 @@ public abstract class AbstractMultiEnvMojo
     protected void deleteFolderOfPreviousRunIfExist( File folderOfPreviousRun )
         throws MojoExecutionException
     {
-        
+
         if ( folderOfPreviousRun.exists() )
         {
             try
@@ -331,9 +331,9 @@ public abstract class AbstractMultiEnvMojo
     {
         // TODO: Should we use a different name or temp file? File.createTempFile( prefix, suffix );
         File unpackFolder = new File( getOutputDirectory(), "configuration-maven-plugin-unpack" );
-    
+
         deleteFolderOfPreviousRunIfExist( unpackFolder );
-    
+
         if ( !unpackFolder.mkdirs() )
         {
             throw new MojoExecutionException( "The unpack folder " + unpackFolder.getAbsolutePath()
@@ -349,14 +349,14 @@ public abstract class AbstractMultiEnvMojo
         {
             throw new MojoExecutionException( "No main artifact has been set yet." );
         }
-    
+
         if ( getMavenProject().getArtifact().getFile() == null )
         {
             throw new MojoExecutionException( "No main artifact file has been set yet." );
         }
-    
+
         return FileUtils.getExtension( getMavenProject().getArtifact().getFile().getAbsolutePath() ).toLowerCase();
-    
+
     }
 
     protected File createPluginResourceOutput()
@@ -364,33 +364,34 @@ public abstract class AbstractMultiEnvMojo
     {
         // TODO: Should we use a different name? Or temp File?
         File resourceResult = new File( getOutputDirectory(), "configuration-maven-plugin-resource-output" );
-    
+
         deleteFolderOfPreviousRunIfExist( resourceResult );
-    
+
         if ( !resourceResult.mkdirs() )
         {
             throw new MojoExecutionException( "Failure while trying to create " + resourceResult.getAbsolutePath() );
         }
-    
+
         return resourceResult;
     }
 
     protected void filterResources( File outputDirectory )
         throws MojoExecutionException
     {
-    
+
         Resource res = new Resource();
         // TODO: Check how to prevent hard coding here?
         res.setDirectory( getSourceDirectory().getAbsolutePath() );
         res.setFiltering( true );
         // TODO: Check if it makes sense to make this list configurable?
         res.setIncludes( Collections.singletonList( "**/*" ) );
-    
+
         List<String> filtersFile = new ArrayList<String>();
         MavenResourcesExecution execution =
             new MavenResourcesExecution( Collections.singletonList( res ), outputDirectory, getMavenProject(),
-                                         getEncoding(), filtersFile, getNonFilteredFileExtensions(), getMavenSession() );
-    
+                                         getEncoding(), filtersFile, getNonFilteredFileExtensions(),
+                                         getMavenSession() );
+
         execution.setEscapeString( getEscapeString() );
         execution.setSupportMultiLineFiltering( isSupportMultiLineFiltering() );
         // TODO: Check if we need a parameter?
@@ -405,12 +406,12 @@ public abstract class AbstractMultiEnvMojo
         execution.setEncoding( getEncoding() );
         //
         // execution.setUseDefaultFilterWrappers( true );
-    
+
         if ( getNonFilteredFileExtensions() != null )
         {
             execution.setNonFilteredFileExtensions( getNonFilteredFileExtensions() );
         }
-    
+
         try
         {
             mavenResourcesFiltering.filterResources( execution );
@@ -420,14 +421,14 @@ public abstract class AbstractMultiEnvMojo
             getLog().error( "Failure during filtering.", e );
             throw new MojoExecutionException( "Failure during filtering", e );
         }
-    
+
     }
 
     protected void createLoggingOutput( String[] identifiedEnvironments )
     {
         getLog().info( "" );
         getLog().info( "We have found " + identifiedEnvironments.length + " environments." );
-    
+
         StringBuilder sb = new StringBuilder();
         for ( int i = 0; i < identifiedEnvironments.length; i++ )
         {
@@ -437,7 +438,7 @@ public abstract class AbstractMultiEnvMojo
             }
             sb.append( identifiedEnvironments[i] );
         }
-    
+
         getLog().info( "We have the following environments: " + sb.toString() );
         getLog().info( "" );
     }

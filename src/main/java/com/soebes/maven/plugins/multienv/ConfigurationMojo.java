@@ -21,8 +21,7 @@ import org.codehaus.plexus.archiver.manager.NoSuchArchiverException;
 import org.codehaus.plexus.archiver.util.DefaultFileSet;
 
 /**
- * This goal will create separate packages out of the 
- * given environment folder.
+ * This goal will create separate packages out of the given environment folder.
  * 
  * @author Karl-Heinz Marbaise <a href="mailto:khmarbaise@soebes.de">khmarbaise@soebes.de</a>
  */
@@ -44,8 +43,7 @@ public class ConfigurationMojo
     private MavenFileFilter mavenFileFilter;
 
     /**
-     * The kind of archive we should produce 
-     * {@code zip}, {code jar} etc.
+     * The kind of archive we should produce {@code zip}, {code jar} etc.
      */
     @Parameter( defaultValue = "jar" )
     private String archiveType;
@@ -63,7 +61,6 @@ public class ConfigurationMojo
 
         createLoggingOutput( identifiedEnvironments );
 
-        
         File resourceResult = createPluginResourceOutput();
 
         filterResources( resourceResult );
