@@ -41,9 +41,6 @@ public class EnvironmentMojo
     @Component
     private ArchiverManager manager;
 
-    @Component( role = MavenFileFilter.class, hint = "default" )
-    private MavenFileFilter mavenFileFilter;
-
     public void execute()
         throws MojoExecutionException, MojoFailureException
     {

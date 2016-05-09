@@ -39,9 +39,6 @@ public class ConfigurationMojo
     @Component
     private ArchiverManager manager;
 
-    @Component( role = MavenFileFilter.class, hint = "default" )
-    private MavenFileFilter mavenFileFilter;
-
     /**
      * The kind of archive we should produce {@code zip}, {code jar} etc.
      */
