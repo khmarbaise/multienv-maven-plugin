@@ -141,8 +141,6 @@ TODO
  * Produce an artifact only for a single environment?
    `mvn -Dmultienv.environment=test-01 clean package` 
    Is this a good idea?
- * Create only separate environment package for each environment.
-   instead of merging it with the current package.
  * Do filtering for each environment separately. So we could inject
    the name of the environment. This can be used put the name of the
    environment into the resulting files via filtering.
