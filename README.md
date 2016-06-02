@@ -54,8 +54,10 @@ structure in your module:
 
 In result the MultiEnv Maven Plugin will automatically create the
 appropriate war files containing the configuration file `first.properties`
-which might contain some information like the database connections url etc. for
-the appropriate environment.
+(just a single file for brevity) which might contain some information like
+ the database connections url etc. for the appropriate environment.
+ 
+You can of course put several different files into the different folders.
 
 The environment name (folder name) will automatically being used as classifier
 for the appropriate artifact. So we would get the following files after
