@@ -31,12 +31,12 @@ Example
 -------
 
 Let us assume you have several environments like `dev-01`, `dev-02`, `test-01`,
-`test-02` and finally `prod`. Furthermore we make the whole situation more or
-less simple and we assume having only a single module build which produces a
-single `war` file as result.
+`test-02` and finally `prod`. We will make the situation simpler for this
+example and assume having only a single module build which produces a
+single `war` file as a result.
 
-To use the MultiEnv Maven Plugin you can simple create the following
-structure in your module:
+The prerequisite to use the MultiEnv Maven Plugin is to create
+a similar folder structure like the following:
 
      src
       ├── main 
@@ -56,7 +56,7 @@ In result the MultiEnv Maven Plugin will automatically create the
 appropriate war files containing the configuration file `first.properties`
 (just a single file for brevity) which might contain some information like
  the database connections url etc. for the appropriate environment.
- 
+
 You can of course put several different files into the different folders.
 
 The environment name (folder name) will automatically being used as classifier
