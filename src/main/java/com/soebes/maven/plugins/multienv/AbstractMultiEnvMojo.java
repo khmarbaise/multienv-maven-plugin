@@ -336,7 +336,7 @@ public abstract class AbstractMultiEnvMojo
         throws MojoFailureException, MojoExecutionException
     {
         // TODO: Should we use a different name or temp file? File.createTempFile( prefix, suffix );
-        File unpackFolder = new File( getOutputDirectory(), "configuration-maven-plugin-unpack" );
+        File unpackFolder = new File( getOutputDirectory(), "multienv-maven-plugin-unpack" );
 
         deleteFolderOfPreviousRunIfExist( unpackFolder );
 
@@ -369,7 +369,7 @@ public abstract class AbstractMultiEnvMojo
         throws MojoExecutionException
     {
         // TODO: Should we use a different name? Or temp File?
-        File resourceResult = new File( getOutputDirectory(), "configuration-maven-plugin-resource-output" );
+        File resourceResult = new File( getOutputDirectory(), "multienv-maven-plugin-resource-output" );
 
         deleteFolderOfPreviousRunIfExist( resourceResult );
 
