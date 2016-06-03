@@ -16,10 +16,6 @@
   <name>The MultiEnv Maven Plugin</name>
   <description>The MultiEnv Maven Plugin will help to create environment dependent artifacts.</description>
 
-  <prerequisites>
-    <maven>${maven.version}</maven>
-  </prerequisites>
-
   <properties>
     <smpp.component>multienv-maven-plugin</smpp.component>
   </properties>
@@ -39,10 +35,6 @@
         <configuration>
           <goalPrefix>multienv</goalPrefix>
         </configuration>
-      </plugin>
-      <plugin>
-        <groupId>org.codehaus.plexus</groupId>
-        <artifactId>plexus-component-metadata</artifactId>
       </plugin>
     </plugins>
   </build>
