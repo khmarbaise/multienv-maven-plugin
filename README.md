@@ -15,7 +15,7 @@ Overview
 
 There are several scenarios where you have different configurations for 
 different environments like dev, test, prod etc. (in real life there are
-usually much more environments than three.).
+usually more environments than three.).
 
 Now you need to produce different artifacts for example war files for those
 different environments. A combination of [maven-assembly-plugin and some
@@ -54,11 +54,11 @@ a folder structure similar like the following:
 
 In result the MultiEnv Maven Plugin will automatically create the
 appropriate war files containing the configuration file `first.properties`
-(just a single file for brevity) which might contain some information like
+(just a single file for brevity in this example) which might contain some information like
  the database connections url etc. for the appropriate environment.
 
 You can of course put several different files into the different environment
-folders.
+folders. It is also possible to create a folder structure there.
 
 The environment name (folder name `dev-01`, `dev-02`, `test-01` etc.) will
 automatically being used as classifier for the appropriate artifact. So we
