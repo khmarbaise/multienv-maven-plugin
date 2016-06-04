@@ -1,4 +1,53 @@
+import java.util.zip.*
+import java.io.*
+import java.util.*
+
 class IntegrationBase {
+
+  def getLinesFromFileWithinTheArchive(def archiveFile, def fileName) {
+      def lines = []
+      ZipFile zf = new ZipFile(archiveFile);
+      try {
+          for (Enumeration<? extends ZipEntry> e = zf.entries(); e.hasMoreElements();) {
+              ZipEntry ze = e.nextElement();
+              String name = ze.getName();
+              if (name.equals(fileName)) {
+                  InputStream is = zf.getInputStream(ze);
+                  lines = getLineOrientedContentFromStream(is);
+                  is.close()
+              }
+          }
+      } finally {
+        zf.close();
+      } 
+      return lines;
+  }
+
+  def fileNameExistInArchive(def archiveFile, def fileName) {
+      def result = false
+      ZipFile zf = new ZipFile(archiveFile);
+      try {
+          for (Enumeration<? extends ZipEntry> e = zf.entries(); e.hasMoreElements();) {
+              ZipEntry ze = e.nextElement();
+              if (ze.getName().equals(fileName)) {
+                result = true
+              }
+          }
+      } finally {
+        zf.close();
+      } 
+      return result;
+  }
+
+  def getLineOrientedContentFromStream(def inputStream) {
+      BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+      def lines = []
+      String line;
+      while ((line = reader.readLine()) != null) {
+          lines.push (line)
+      }
+      return lines
+  }
 
 	void checkExistenceAndContentOfAFile(file, contents) {
 		if (!file.canRead()) {

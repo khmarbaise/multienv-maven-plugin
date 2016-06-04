@@ -19,63 +19,17 @@
 
 import java.io.*
 import java.util.*
-import java.util.zip.*
 
 
 t = new IntegrationBase()
 
-def getLineOrientedContentFromStream(def inputStream) {
-    BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
-    def lines = []
-    String line;
-    while ((line = reader.readLine()) != null) {
-        lines.push (line)
-    }
-    return lines
-}
-
-def getLinesFromFileWithinTheArchive(def archiveFile, def fileName) {
-    def lines = []
-    ZipFile zf = new ZipFile(archiveFile);
-    try {
-        for (Enumeration<? extends ZipEntry> e = zf.entries(); e.hasMoreElements();) {
-            ZipEntry ze = e.nextElement();
-            String name = ze.getName();
-            if (name.equals(fileName)) {
-                InputStream is = zf.getInputStream(ze);
-                lines = getLineOrientedContentFromStream(is);
-                is.close()
-            }
-        }
-    } finally {
-      zf.close();
-    } 
-    return lines;
-}
-
-def fileNameExistInArchive(def archiveFile, def fileName) {
-    def result = false
-    ZipFile zf = new ZipFile(archiveFile);
-    try {
-        for (Enumeration<? extends ZipEntry> e = zf.entries(); e.hasMoreElements();) {
-            ZipEntry ze = e.nextElement();
-            if (ze.getName().equals(fileName)) {
-              result = true
-            }
-        }
-    } finally {
-      zf.close();
-    } 
-    return result;
-}
-
-def getProjectVersion() {
+def getProjectVersion(File basedir) {
     def pom = new XmlSlurper().parse(new File(basedir, 'pom.xml'))
 
     return pom.version
 }
 
-def projectVersion = getProjectVersion();
+def projectVersion = getProjectVersion(basedir);
 
 println "Project version: ${projectVersion}"
 
@@ -101,7 +55,7 @@ classifierList.each { classifier ->
         throw new FileNotFoundException("The file " + tf.getAbsolutePath() + " does not exists.")
     }
 
-    def contentOfFirstPropertiesFileFromArchive = getLinesFromFileWithinTheArchive(tf, 'first.properties')
+    def contentOfFirstPropertiesFileFromArchive = t.getLinesFromFileWithinTheArchive(tf, 'first.properties')
 
     def foundClassifier = classifier in contentOfFirstPropertiesFileFromArchive 
     def foundVersion = projectVersion in contentOfFirstPropertiesFileFromArchive

@@ -19,34 +19,17 @@
 
 import java.io.*
 import java.util.*
-import java.util.zip.*
 
 
 t = new IntegrationBase()
 
-def fileNameExistInArchive(def archiveFile, def fileName) {
-    def result = false
-    ZipFile zf = new ZipFile(archiveFile);
-    try {
-        for (Enumeration<? extends ZipEntry> e = zf.entries(); e.hasMoreElements();) {
-            ZipEntry ze = e.nextElement();
-            if (ze.getName().equals(fileName)) {
-              result = true
-            }
-        }
-    } finally {
-      zf.close();
-    } 
-    return result;
-}
-
-def getProjectVersion() {
+def getProjectVersion(File basedir) {
     def pom = new XmlSlurper().parse(new File(basedir, 'pom.xml'))
 
     return pom.version
 }
 
-def projectVersion = getProjectVersion();
+def projectVersion = getProjectVersion(basedir);
 
 println "Project version: ${projectVersion}"
 
@@ -74,8 +57,8 @@ classifierList.each { classifier ->
         throw new FileNotFoundException("The file " + tf.getAbsolutePath() + " does not exists.")
     }
 
-    def firstProperties = fileNameExistInArchive(tf, 'first.properties')
-    def x1Xml = fileNameExistInArchive(tf, 'first-level/x1.xml')
+    def firstProperties = t.fileNameExistInArchive(tf, 'first.properties')
+    def x1Xml = t.fileNameExistInArchive(tf, 'first-level/x1.xml')
 
     if (!firstProperties) {
       println "The file first.properties does not exist in archives."
