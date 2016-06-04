@@ -24,7 +24,34 @@ import java.util.zip.*
 
 t = new IntegrationBase()
 
+def getLineOrientedContentFromStream(def inputStream) {
+    BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+    def lines = []
+    String line;
+    while ((line = reader.readLine()) != null) {
+        lines.push (line)
+    }
+    return lines
+}
 
+def getLinesFromFileWithinTheArchive(def archiveFile, def fileName) {
+    def lines = []
+    ZipFile zf = new ZipFile(archiveFile);
+    try {
+        for (Enumeration<? extends ZipEntry> e = zf.entries(); e.hasMoreElements();) {
+            ZipEntry ze = e.nextElement();
+            String name = ze.getName();
+            if (name.equals(fileName)) {
+                InputStream is = zf.getInputStream(ze);
+                lines = getLineOrientedContentFromStream(is);
+                is.close()
+            }
+        }
+    } finally {
+      zf.close();
+    } 
+    return lines;
+}
 def getProjectVersion() {
     def pom = new XmlSlurper().parse(new File(basedir, 'pom.xml'))
 
@@ -56,49 +83,20 @@ classifierList.each { classifier ->
     if (!tf.exists()) {
         throw new FileNotFoundException("The file " + tf.getAbsolutePath() + " does not exists.")
     }
-    ZipFile zf = new ZipFile(tf);
-    def foundClassifier = false
-    def foundVersion = false
-    try {
-      for (Enumeration<? extends ZipEntry> e = zf.entries(); e.hasMoreElements();) {
-        ZipEntry ze = e.nextElement();
-        String name = ze.getName();
-        if (name.equals("first.properties")) {
-          InputStream is = zf.getInputStream(ze);
-          BufferedReader reader = new BufferedReader(new InputStreamReader(is));
-          String line;
-          def lines = []
-          while ((line = reader.readLine()) != null) {
-              println "Line: '${line}'"
-              lines.push (line)
-          }
-          is.close();
-          println "Lines array:"
-          lines.each {
-            println " Item -> ${it}"
-          }
-          if (classifier in lines) {
-                println "classifier found."
-                foundClassifier = true
-          }
-          if (projectVersion in lines) {
-                println "projectVersion found."
-                foundVersion = true
-          }
 
-          if (!foundClassifier) {
-            println "The first.properties does not contain the classifier."
-            result = false
-          }
-          if (!foundVersion) {
-            println "The first.properties does not contain the version."
-            result = false
-          }
-        }
-      }
-    } finally {
-      zf.close();
-    } 
+    def contentOfFirstPropertiesFileFromArchive = getLinesFromFileWithinTheArchive(tf, 'first.properties')
+
+    def foundClassifier = classifier in contentOfFirstPropertiesFileFromArchive 
+    def foundVersion = projectVersion in contentOfFirstPropertiesFileFromArchive
+
+    if (!foundClassifier) {
+      println "The classifier couldn't be found in the archived file ${classifier}."
+      result = false
+    }
+    if (!foundVersion) {
+      println "The projectVersion couldn't be found in the archived file ${projectVersion}"
+      result = false
+    }
 }
 
 return result;
