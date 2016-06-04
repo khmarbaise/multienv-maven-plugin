@@ -52,6 +52,23 @@ def getLinesFromFileWithinTheArchive(def archiveFile, def fileName) {
     } 
     return lines;
 }
+
+def fileNameExistInArchive(def archiveFile, def fileName) {
+    def result = false
+    ZipFile zf = new ZipFile(archiveFile);
+    try {
+        for (Enumeration<? extends ZipEntry> e = zf.entries(); e.hasMoreElements();) {
+            ZipEntry ze = e.nextElement();
+            if (ze.getName().equals(fileName)) {
+              result = true
+            }
+        }
+    } finally {
+      zf.close();
+    } 
+    return result;
+}
+
 def getProjectVersion() {
     def pom = new XmlSlurper().parse(new File(basedir, 'pom.xml'))
 
@@ -90,11 +107,13 @@ classifierList.each { classifier ->
     def foundVersion = projectVersion in contentOfFirstPropertiesFileFromArchive
 
     if (!foundClassifier) {
-      println "The classifier couldn't be found in the archived file ${classifier}."
+      println "The classifier '${classifier}' couldn't be found in the " 
+      println "content of the 'first.properties' file within the archive ${tf.getAbsolutePath()}."
       result = false
     }
     if (!foundVersion) {
-      println "The projectVersion couldn't be found in the archived file ${projectVersion}"
+      println "The projectVersion '${projectVersion}' couldn't be found in the "
+      println "content of the 'first.properties' file within the archive ${tf.getAbsolutePath()}."
       result = false
     }
 }
