@@ -36,7 +36,7 @@ example and assume having only a single module build which produces a
 single `war` file as a result.
 
 The prerequisite to use the MultiEnv Maven Plugin is to create
-a similar folder structure like the following:
+a folder structure similar like the following:
 
      src
       ├── main 
@@ -57,12 +57,13 @@ appropriate war files containing the configuration file `first.properties`
 (just a single file for brevity) which might contain some information like
  the database connections url etc. for the appropriate environment.
 
-You can of course put several different files into the different folders.
+You can of course put several different files into the different environment
+folders.
 
-The environment name (folder name) will automatically being used as classifier
-for the appropriate artifact. So we would get the following files after
-running MultiEnv Maven Plugin via ([assuming you have configured it
-correctly](README.md#how-to-configure)):
+The environment name (folder name `dev-01`, `dev-02`, `test-01` etc.) will
+automatically being used as classifier for the appropriate artifact. So we
+would get the following files after running MultiEnv Maven Plugin via 
+([assuming you have configured it correctly](README.md#how-to-configure)):
 
 ```
 mvn clean package
@@ -78,8 +79,8 @@ mvn clean package
 If you need to add a new environment this can simply being solved by adding a
 new folder under `environments` which might being called `qa-01` plus the
 information you would like to configure and that's it.  Configuration Maven
-Plugin will automatically identify the new environment by search in the
-environment folder and producing appropriate artifacts out of it.
+Plugin will automatically identify the new environment by searching in the
+environment folder and producing an appropriate artifact out of it.
 
 How To Configure
 ----------------
