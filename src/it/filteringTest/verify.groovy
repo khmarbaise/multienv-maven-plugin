@@ -19,6 +19,7 @@
 
 import java.io.*
 import java.util.*
+import java.util.zip.*
 
 
 t = new IntegrationBase()
@@ -47,12 +48,57 @@ if (!targetFolder.exists()) {
     throw new FileNotFoundException("target folder does not exists.")
 }
 
+def result = true
+
 classifierList.each { classifier ->
     def tf = new File (targetFolder, "filtering-test-" + projectVersion + "-" + classifier + ".jar")
     println "Checking ${classifier}: " + tf.getAbsolutePath()
     if (!tf.exists()) {
         throw new FileNotFoundException("The file " + tf.getAbsolutePath() + " does not exists.")
     }
+    ZipFile zf = new ZipFile(tf);
+    def foundClassifier = false
+    def foundVersion = false
+    try {
+      for (Enumeration<? extends ZipEntry> e = zf.entries(); e.hasMoreElements();) {
+        ZipEntry ze = e.nextElement();
+        String name = ze.getName();
+        if (name.equals("first.properties")) {
+          InputStream is = zf.getInputStream(ze);
+          BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+          String line;
+          def lines = []
+          while ((line = reader.readLine()) != null) {
+              println "Line: '${line}'"
+              lines.push (line)
+          }
+          is.close();
+          println "Lines array:"
+          lines.each {
+            println " Item -> ${it}"
+          }
+          if (classifier in lines) {
+                println "classifier found."
+                foundClassifier = true
+          }
+          if (projectVersion in lines) {
+                println "projectVersion found."
+                foundVersion = true
+          }
+
+          if (!foundClassifier) {
+            println "The first.properties does not contain the classifier."
+            result = false
+          }
+          if (!foundVersion) {
+            println "The first.properties does not contain the version."
+            result = false
+          }
+        }
+      }
+    } finally {
+      zf.close();
+    } 
 }
 
-return true;
+return result;

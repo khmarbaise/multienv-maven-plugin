@@ -58,7 +58,8 @@ appropriate war files containing the configuration file `first.properties`
  the database connections url etc. for the appropriate environment.
 
 You can of course put several different files into the different environment
-folders. It is also possible to create a folder structure there.
+folders. It is also possible to create a folder structure under the appropriate
+environment. This will also be packaged into the resulting artifact.
 
 The environment name (folder name `dev-01`, `dev-02`, `test-01` etc.) will
 automatically being used as classifier for the appropriate artifact. So we
