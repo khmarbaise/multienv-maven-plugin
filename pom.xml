@@ -33,6 +33,7 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-plugin-plugin</artifactId>
         <configuration>
+          <skipErrorNoDescriptorsFound>true</skipErrorNoDescriptorsFound>
           <goalPrefix>multienv</goalPrefix>
         </configuration>
       </plugin>
