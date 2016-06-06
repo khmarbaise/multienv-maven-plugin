@@ -21,7 +21,7 @@ import org.codehaus.plexus.archiver.util.DefaultFileSet;
 
 /**
  * This mojo will get the main artifact of the current project unpack it and use the files of the appropriate
- * environment and produce new files which contain the original files and the supplemental files which have been given
+ * environment and produce new files which contain the original files plus the supplemental files which have been given
  * by the configuration for each environment.
  * 
  * @author Karl-Heinz Marbaise <a href="mailto:khmarbaise@soebes.de">khmarbaise@soebes.de</a>

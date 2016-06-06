@@ -22,13 +22,17 @@ different environments. A combination of [maven-assembly-plugin and some
 descriptors][blog-multiple-environments-i] will solve this. Also this
 can be [enhanced for other things as well][blog-multiple-environments-ii].
 
-The problem comes if you have more than two or three environments than the
+The problem becomes worse if you have more than two or three environments than the
 [configuration][iterator-plugin] with
 [maven-assembly-plugin][iterator-plugin-map] etc. became cumbersome.
 This plugin will exactly handle such scenarios.
 
-Example
--------
+The scenarios are the following. Producing artifacts which include the
+configuration for each [environment](README.md#example-1): or artifacts which contain only the 
+[configuration](README.md#example-2): for the appropriate environment.
+
+Example 1
+---------
 
 Let us assume you have several environments like `dev-01`, `dev-02`, `test-01`,
 `test-02` and finally `prod`. We will make the situation simpler for this
@@ -77,11 +81,42 @@ mvn clean package
   * artifactId-version-prod.war
 
 
-If you need to add a new environment this can simply being solved by adding a
+If you need to add a new environment this can simply being achieved by adding a
 new folder under `environments` which might being called `qa-01` plus the
-information you would like to configure and that's it.  Configuration Maven
+information you would like to configure and that's it. MultiEnv Maven
 Plugin will automatically identify the new environment by searching in the
 environment folder and producing an appropriate artifact out of it.
+
+Those above packages contain the original `war` file content as well
+as the supplemental files/directories which have been given for the
+appropriate environments.
+
+Example 2
+---------
+
+In this example we would like to create configuration artifacts for 
+each environment.
+
+The configuration looks exactly the same in [Example 1](README.md#example-1)
+except for the used goal. So you need to change the 
+goal from `environment` to `configuration` in the plugin configuration.
+By using the:
+
+```
+mvn clean package
+```
+
+you will produce the following artifacts:
+
+  * artifactId-version-dev-01.jar
+  * artifactId-version-dev-02.jar
+  * artifactId-version-test-01.jar
+  * artifactId-version-test-02.jar
+  * artifactId-version-prod.jar
+
+As you might already realized that those files are not `war` files. The
+files are jar files which contain the configuration for each environment.
+
 
 How To Configure
 ----------------
@@ -93,7 +128,7 @@ to your pom file (we assume here a war file):
 
   <groupId>groupId</groupId>
   <artifactId>artifactId</artifactId>
-  <version>0.1-SNAPSHOT</version>
+  <version>0.1.0-SNAPSHOT</version>
   <packaging>war</packaging>
   ...
   <build>
@@ -105,7 +140,7 @@ to your pom file (we assume here a war file):
         <executions>
           <execution>
             <goals>
-              <goal>configuration</goal>
+              <goal>environment</goal>
             </goals>
           </execution>
         </executions>
