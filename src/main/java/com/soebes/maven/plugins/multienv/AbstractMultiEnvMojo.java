@@ -213,6 +213,27 @@ public abstract class AbstractMultiEnvMojo
     }
 
     /**
+     * This will check if an environment (folder) contains a space cause the environment will later being used as a
+     * classifier which does not allow a space.
+     * 
+     * @param environmens The environments which should be checked.
+     * @return The list contains the invalid environments. If the list is
+     *  {@code empty} all environments are ok.
+     */
+    protected List<String> environmentNamesAreValid( String[] environmens )
+    {
+        List<String> result = new ArrayList<>();
+        for ( String item : environmens )
+        {
+            if ( item.contains( " " ) )
+            {
+                result.add( item );
+            }
+        }
+        return result;
+    }
+
+    /**
      * Returns the archive file to generate, based on an optional classifier.
      *
      * @param basedir the output directory
@@ -456,6 +477,28 @@ public abstract class AbstractMultiEnvMojo
 
         getLog().info( "We have the following environments: " + sb.toString() );
         getLog().info( "" );
+    }
+
+    /**
+     * This will validate the environments and will fail the build
+     * in case of errors.
+     * @param identifiedEnvironments The environments which will be checked.
+     * @throws MojoFailureException in case of invalid environments.
+     */
+    protected void validateEnvironments( String[] identifiedEnvironments )
+        throws MojoFailureException
+    {
+        List<String> environmentNamesAreValid = environmentNamesAreValid( identifiedEnvironments );
+        if ( !environmentNamesAreValid.isEmpty() )
+        {
+            for ( String invalidEnv : environmentNamesAreValid )
+            {
+                getLog().error( "Your environment '" + invalidEnv + "' name contains spaces which is not allowed." );
+    
+            }
+            throw new MojoFailureException( "Your environment names contain spaces which are not allowed."
+                + "See previous error messages for details." );
+        }
     }
 
 }

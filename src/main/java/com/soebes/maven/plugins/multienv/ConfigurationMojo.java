@@ -55,6 +55,8 @@ public class ConfigurationMojo
             return;
         }
 
+        validateEnvironments( identifiedEnvironments );
+
         createLoggingOutput( identifiedEnvironments );
 
         File resourceResult = createPluginResourceOutput();

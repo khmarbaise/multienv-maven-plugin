@@ -51,6 +51,8 @@ public class EnvironmentMojo
             return;
         }
 
+        validateEnvironments( identifiedEnvironments );
+
         createLoggingOutput( identifiedEnvironments );
 
         String archiveExt = getArchiveExtensionOfTheProjectMainArtifact();
@@ -87,10 +89,12 @@ public class EnvironmentMojo
             catch ( NoSuchArchiverException e )
             {
                 getLog().error( "Archive creation failed.", e );
+                throw new MojoExecutionException( "Archive creation failed.", e );
             }
             catch ( IOException e )
             {
                 getLog().error( "IO Exception.", e );
+                throw new MojoExecutionException( "IO Exception.", e );
             }
         }
 
