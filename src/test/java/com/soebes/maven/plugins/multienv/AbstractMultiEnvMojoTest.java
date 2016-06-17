@@ -23,26 +23,26 @@ public class AbstractMultiEnvMojoTest
     {
 
         private AbstractMultiEnvMojo mojo;
+        private File environmentFolder;
 
         @BeforeMethod
         public void beforeTest()
         {
+            this.environmentFolder = new File( getMavenBaseDir(), "src/it/basicTest/src/main/environments" );
             mojo = mock( AbstractMultiEnvMojo.class, Mockito.CALLS_REAL_METHODS );
         }
 
         @Test
         public void readingTheEnvironmentsFromTheBasicIntegrationTestShouldReturnSix()
         {
-            File resourceResult = new File( getMavenBaseDir(), "src/it/basicTest/src/main/environments" );
-            String[] theEnvironments = mojo.getTheEnvironments( resourceResult );
+            String[] theEnvironments = mojo.getTheEnvironments( environmentFolder );
             assertThat( theEnvironments ).hasSize( 6 );
         }
 
         @Test
         public void readingTheEnvironmentsFromTheBasicIntegrationTestShouldReturnSixNamedCorrectly()
         {
-            File resourceResult = new File( getMavenBaseDir(), "src/it/basicTest/src/main/environments" );
-            String[] theEnvironments = mojo.getTheEnvironments( resourceResult );
+            String[] theEnvironments = mojo.getTheEnvironments( environmentFolder );
             assertThat( theEnvironments ).containsOnly( "dev-01", "dev-02", "qa01", "qa02", "test01", "test02" );
         }
 
