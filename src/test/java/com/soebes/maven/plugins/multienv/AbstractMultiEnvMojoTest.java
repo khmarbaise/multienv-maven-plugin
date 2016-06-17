@@ -10,11 +10,10 @@ import java.io.File;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugin.logging.Log;
 import org.mockito.Mockito;
-import org.testng.annotations.BeforeTest;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 /**
- * 
  * @author Karl-Heinz Marbaise <a href="mailto:khmarbaise@soebes.de">khmarbaise@soebes.de</a>
  */
 public class AbstractMultiEnvMojoTest
@@ -25,7 +24,7 @@ public class AbstractMultiEnvMojoTest
 
         private AbstractMultiEnvMojo mojo;
 
-        @BeforeTest
+        @BeforeMethod
         public void beforeTest()
         {
             mojo = mock( AbstractMultiEnvMojo.class, Mockito.CALLS_REAL_METHODS );
@@ -47,6 +46,52 @@ public class AbstractMultiEnvMojoTest
             assertThat( theEnvironments ).containsOnly( "dev-01", "dev-02", "qa01", "qa02", "test01", "test02" );
         }
 
+    }
+
+    public class ValidateEnvironmentTest
+    {
+
+        private AbstractMultiEnvMojo mojo;
+
+        private String[] theEnvironments;
+
+        private Log log;
+
+        @BeforeMethod
+        public void beforeTest()
+        {
+            mojo = mock( AbstractMultiEnvMojo.class, Mockito.CALLS_REAL_METHODS );
+
+            this.log = mock( Log.class );
+            mojo.setLog( log );
+
+            File resourceResult = new File( getMavenBaseDir(), "src/test/resources/wrong-environments" );
+            this.theEnvironments = mojo.getTheEnvironments( resourceResult );
+        }
+
+        @Test( expectedExceptions = {
+            MojoFailureException.class }, expectedExceptionsMessageRegExp = "Your environment names contain spaces which are not allowed\\..*" )
+        public void validateEnvironmentsShouldFailWithMojoFailureException()
+            throws MojoFailureException
+        {
+            mojo.validateEnvironments( theEnvironments );
+        }
+
+        @Test
+        public void validateEnvironmentsShouldProduceErrorMessage()
+            throws MojoFailureException
+        {
+            try
+            {
+                mojo.validateEnvironments( theEnvironments );
+                fail( "Should have failed with an MojoFailureException" );
+            }
+            catch ( MojoFailureException e )
+            {
+                verify( log ).error( "Your environment 'dev 01' name contains spaces which is not allowed." );
+            }
+        }
+
         @Test
         public void validateEnvironmentsShouldNotFail()
             throws MojoFailureException
@@ -54,29 +99,6 @@ public class AbstractMultiEnvMojoTest
             File resourceResult = new File( getMavenBaseDir(), "src/it/basicTest/src/main/environments" );
             String[] theEnvironments = mojo.getTheEnvironments( resourceResult );
             mojo.validateEnvironments( theEnvironments );
-        }
-
-        @Test
-        public void validateEnvironmentsShouldFailWithMojoFailureExceptionAndWroteTheErrorMessage()
-            throws MojoFailureException
-        {
-            Log log = mock( Log.class );
-            mojo.setLog( log );
-
-            File resourceResult = new File( getMavenBaseDir(), "src/test/resources/wrong-environments" );
-            String[] theEnvironments = mojo.getTheEnvironments( resourceResult );
-
-            try
-            {
-                mojo.validateEnvironments( theEnvironments );
-                fail( "Should have failed with an MojoFailureException" );
-            }
-            catch ( Exception e )
-            {
-                verify( log ).error( "Your environment 'dev 01' name contains spaces which is not allowed." );
-                assertThat( e ).isInstanceOf( MojoFailureException.class ).hasMessage( "Your environment names contain spaces which are not allowed."
-                    + "See previous error messages for details." );
-            }
         }
 
     }
@@ -91,7 +113,7 @@ public class AbstractMultiEnvMojoTest
 
         private static final String EMPTY_STRING = "";
 
-        @BeforeTest
+        @BeforeMethod
         public void beforeTest()
         {
             mockFile = mock( File.class );
