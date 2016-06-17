@@ -23,6 +23,10 @@ import org.apache.maven.shared.filtering.MavenResourcesFiltering;
 import org.codehaus.plexus.util.DirectoryScanner;
 import org.codehaus.plexus.util.FileUtils;
 
+/**
+ * 
+ * @author Karl-Heinz Marbaise <a href="mailto:khmarbaise@soebes.de">khmarbaise@soebes.de</a>
+ */
 public abstract class AbstractMultiEnvMojo
     extends AbstractMojo
 {

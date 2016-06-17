@@ -13,6 +13,10 @@ import org.mockito.Mockito;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
+/**
+ * 
+ * @author Karl-Heinz Marbaise <a href="mailto:khmarbaise@soebes.de">khmarbaise@soebes.de</a>
+ */
 public class AbstractMultiEnvMojoTest
     extends UnitTestBase
 {

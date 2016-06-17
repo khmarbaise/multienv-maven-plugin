@@ -2,6 +2,10 @@ package com.soebes.maven.plugins.multienv;
 
 import java.io.File;
 
+/**
+ * 
+ * @author Karl-Heinz Marbaise <a href="mailto:khmarbaise@soebes.de">khmarbaise@soebes.de</a>
+ */
 public class UnitTestBase
 {
 
