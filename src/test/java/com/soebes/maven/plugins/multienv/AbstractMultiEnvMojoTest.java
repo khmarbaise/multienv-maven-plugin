@@ -53,7 +53,7 @@ public class AbstractMultiEnvMojoTest
         }
 
         @Test
-        public void validateEnvironmentsShouldFailWithMojoFailureException()
+        public void validateEnvironmentsShouldFailWithMojoFailureExceptionAndWroteTheErrorMessage()
             throws MojoFailureException
         {
             Log log = mock( Log.class );
