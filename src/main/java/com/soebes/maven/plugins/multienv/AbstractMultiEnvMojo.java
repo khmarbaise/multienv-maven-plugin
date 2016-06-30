@@ -24,7 +24,6 @@ import org.codehaus.plexus.util.DirectoryScanner;
 import org.codehaus.plexus.util.FileUtils;
 
 /**
- * 
  * @author Karl-Heinz Marbaise <a href="mailto:khmarbaise@soebes.de">khmarbaise@soebes.de</a>
  */
 public abstract class AbstractMultiEnvMojo
@@ -200,7 +199,8 @@ public abstract class AbstractMultiEnvMojo
 
     /**
      * @param resourceResult The folder where to search for different environments.
-     * @return The list of identified environments.
+     * @return The list of identified environments. This
+     *  list is converted to lower case.
      */
     protected String[] getTheEnvironments( File resourceResult )
     {
@@ -213,7 +213,13 @@ public abstract class AbstractMultiEnvMojo
         ds.addDefaultExcludes();
         ds.scan();
 
-        return ds.getIncludedDirectories();
+        String[] includedDirectories = ds.getIncludedDirectories();
+        String[] result = new String[includedDirectories.length];
+        for ( int i = 0; i < ds.getIncludedDirectories().length; i++ )
+        {
+            result[i] = includedDirectories[i].toLowerCase();
+        }
+        return result;
     }
 
     /**
@@ -221,8 +227,7 @@ public abstract class AbstractMultiEnvMojo
      * classifier which does not allow a space.
      * 
      * @param environmens The environments which should be checked.
-     * @return The list contains the invalid environments. If the list is
-     *  {@code empty} all environments are ok.
+     * @return The list contains the invalid environments. If the list is {@code empty} all environments are ok.
      */
     protected List<String> environmentNamesAreValid( String[] environmens )
     {
@@ -484,8 +489,8 @@ public abstract class AbstractMultiEnvMojo
     }
 
     /**
-     * This will validate the environments and will fail the build
-     * in case of errors.
+     * This will validate the environments and will fail the build in case of errors.
+     * 
      * @param identifiedEnvironments The environments which will be checked.
      * @throws MojoFailureException in case of invalid environments.
      */
@@ -498,7 +503,7 @@ public abstract class AbstractMultiEnvMojo
             for ( String invalidEnv : environmentNamesAreValid )
             {
                 getLog().error( "Your environment '" + invalidEnv + "' name contains spaces which is not allowed." );
-    
+
             }
             throw new MojoFailureException( "Your environment names contain spaces which are not allowed."
                 + "See previous error messages for details." );
