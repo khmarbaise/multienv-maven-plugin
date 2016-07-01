@@ -100,27 +100,6 @@ public class EnvironmentMojo
 
     }
 
-    private void createGZIPArchive( String includes )
-        throws IOException, NoSuchArchiverException
-    {
-        try
-        {
-            File baseFolder = new File( getSourceDirectory(), includes );
-            File theOriginalFile = new File( baseFolder, "first.properties" );
-            Archiver gzipArchiver = manager.getArchiver( "gzip" );
-
-            gzipArchiver.addFile( theOriginalFile, "first.properties.gz" );
-
-            gzipArchiver.setDestFile( new File( baseFolder, "first.properties.gz" ) );
-            gzipArchiver.createArchive();
-        }
-        catch ( ArchiverException e )
-        {
-            getLog().error( "Archive creation failed.", e );
-        }
-
-    }
-
     private void unarchiveFile( File sourceFile, File destDirectory, String archiveExt )
         throws MojoExecutionException
     {
