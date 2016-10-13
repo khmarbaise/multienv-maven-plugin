@@ -44,14 +44,14 @@ if (!buildLogFile.exists()) {
     throw new FileNotFoundException("build.log does not exists.")
 }
 
-def targetFolder = new File (basedir, "target")
-if (!targetFolder.exists()) {
-    throw new FileNotFoundException("target folder does not exists.")
+def targetDirectory = new File (basedir, "target")
+if (!targetDirectory.exists()) {
+    throw new FileNotFoundException("target directory does not exists.")
 }
 
 def result = true
 classifierList.each { classifier ->
-    def tf = new File (targetFolder, "supplemental-folder-test-" + projectVersion + "-" + classifier + ".war")
+    def tf = new File (targetDirectory, "supplemental-directory-test-" + projectVersion + "-" + classifier + ".war")
     println "Checking ${classifier}: " + tf.getAbsolutePath()
     if (!tf.exists()) {
         throw new FileNotFoundException("The file " + tf.getAbsolutePath() + " does not exists.")

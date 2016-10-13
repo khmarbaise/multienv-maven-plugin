@@ -40,7 +40,7 @@ example and assume having only a single module build which produces a
 single `war` file as a result.
 
 The prerequisite to use the MultiEnv Maven Plugin is to create
-a folder structure similar like the following:
+a directory structure similar like the following:
 
      src
       ├── main 
@@ -62,10 +62,10 @@ appropriate war files containing the configuration file `first.properties`
  the database connections url etc. for the appropriate environment.
 
 You can of course put several different files into the different environment
-folders. It is also possible to create a folder structure under the appropriate
+directories. It is also possible to create a directory structure under the appropriate
 environment. This will also be packaged into the resulting artifact.
 
-The environment name (folder name `dev-01`, `dev-02`, `test-01` etc.) will
+The environment name (directory name `dev-01`, `dev-02`, `test-01` etc.) will
 automatically being used as classifier for the appropriate artifact. So we
 would get the following files after running MultiEnv Maven Plugin via 
 ([assuming you have configured it correctly](README.md#how-to-configure)):
@@ -82,10 +82,10 @@ mvn clean package
 
 
 If you need to add a new environment this can simply being achieved by adding a
-new folder under `environments` which might being called `qa-01` plus the
+new directory under `environments` which might being called `qa-01` plus the
 information you would like to configure and that's it. MultiEnv Maven
 Plugin will automatically identify the new environment by searching in the
-environment folder and producing an appropriate artifact out of it.
+environment directory and producing an appropriate artifact out of it.
 
 Those above packages contain the original `war` file content as well
 as the supplemental files/directories which have been given for the
@@ -152,7 +152,7 @@ to your pom file (we assume here a war file):
 Filtering
 ---------
 
-Based on the given folder structure files like `first.properties` etc. will be
+Based on the given directory structure files like `first.properties` etc. will be
 filtered before they are packaged into the resulting artifacts. This means you
 can use things like `${project.version}` in your files or other self defined
 properties.
@@ -160,7 +160,7 @@ properties.
 
 Document:
 
- * Using filename/folder filtering ?
+ * Using filename/directory filtering ?
  * Different files for different environments
 
 Advantages
