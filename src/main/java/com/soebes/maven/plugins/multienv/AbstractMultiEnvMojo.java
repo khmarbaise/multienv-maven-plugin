@@ -1,6 +1,7 @@
 package com.soebes.maven.plugins.multienv;
 
 import java.io.File;
+import java.io.FileFilter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -20,7 +21,6 @@ import org.apache.maven.project.MavenProjectHelper;
 import org.apache.maven.shared.filtering.MavenFilteringException;
 import org.apache.maven.shared.filtering.MavenResourcesExecution;
 import org.apache.maven.shared.filtering.MavenResourcesFiltering;
-import org.codehaus.plexus.util.DirectoryScanner;
 import org.codehaus.plexus.util.FileUtils;
 
 /**
@@ -199,25 +199,24 @@ public abstract class AbstractMultiEnvMojo
 
     /**
      * @param resourceResult The folder where to search for different environments.
-     * @return The list of identified environments. This
-     *  list is converted to lower case.
+     * @return The list of identified environments. This list is converted to lower case.
      */
     protected String[] getTheEnvironments( File resourceResult )
     {
-        DirectoryScanner ds = new DirectoryScanner();
-        ds.setBasedir( resourceResult );
-        // It is necessary to exclude the {@code ""} cause
-        // otherwise we would get back this as well.
-        // Bug?
-        ds.setExcludes( new String[] { "" } );
-        ds.addDefaultExcludes();
-        ds.scan();
-
-        String[] includedDirectories = ds.getIncludedDirectories();
-        String[] result = new String[includedDirectories.length];
-        for ( int i = 0; i < ds.getIncludedDirectories().length; i++ )
+        File[] theResultingFolders = resourceResult.listFiles( new FileFilter()
         {
-            result[i] = includedDirectories[i].toLowerCase();
+            @Override
+            public boolean accept( File pathname )
+            {
+                return pathname.isDirectory() && pathname.exists();
+            }
+        } );
+
+        String[] result = new String[theResultingFolders.length];
+        for ( int i = 0; i < theResultingFolders.length; i++ )
+        {
+            getLog().debug( "Folders: " + theResultingFolders[i].getName() );
+            result[i] = theResultingFolders[i].getName().toLowerCase();
         }
         return result;
     }
