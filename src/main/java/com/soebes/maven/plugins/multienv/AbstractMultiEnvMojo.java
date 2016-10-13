@@ -49,7 +49,7 @@ public abstract class AbstractMultiEnvMojo
     private File outputDirectory;
 
     /**
-     * folder which contains the different environments
+     * directory which contains the different environments
      */
     // TODO: src/main ? property?
     @Parameter( defaultValue = "${basedir}/src/main/environments" )
@@ -103,7 +103,7 @@ public abstract class AbstractMultiEnvMojo
     private List<String> filters;
 
     /**
-     * Support filtering of filenames folders etc.
+     * Support filtering of filenames directories etc.
      */
     @Parameter( defaultValue = "false" )
     private boolean fileNameFiltering;
@@ -198,8 +198,9 @@ public abstract class AbstractMultiEnvMojo
     }
 
     /**
-     * @param resourceResult The folder where to search for different environments.
-     * @return The list of identified environments. This list is converted to lower case.
+     * @param resourceResult The directory where to search for different environments.
+     * @return The list of identified environments. This
+     *  list is converted to lower case.
      */
     protected String[] getTheEnvironments( File resourceResult )
     {
@@ -222,7 +223,7 @@ public abstract class AbstractMultiEnvMojo
     }
 
     /**
-     * This will check if an environment (folder) contains a space cause the environment will later being used as a
+     * This will check if an environment (directory) contains a space cause the environment will later being used as a
      * classifier which does not allow a space.
      * 
      * @param environmens The environments which should be checked.
@@ -337,44 +338,44 @@ public abstract class AbstractMultiEnvMojo
         return result;
     }
 
-    protected void deleteFolderOfPreviousRunIfExist( File folderOfPreviousRun )
+    protected void deleteDirectoryOfPreviousRunIfExist( File directoryOfPreviousRun )
         throws MojoExecutionException
     {
 
-        if ( folderOfPreviousRun.exists() )
+        if ( directoryOfPreviousRun.exists() )
         {
             try
             {
-                FileUtils.deleteDirectory( folderOfPreviousRun );
+                FileUtils.deleteDirectory( directoryOfPreviousRun );
             }
             catch ( IOException e )
             {
-                throw new MojoExecutionException( "Failure while deleting " + folderOfPreviousRun.getAbsolutePath(),
+                throw new MojoExecutionException( "Failure while deleting " + directoryOfPreviousRun.getAbsolutePath(),
                                                   e );
             }
         }
     }
 
     /**
-     * Create the unpack folder for later unpacking of the main artifact.
+     * Create the unpack directory for later unpacking of the main artifact.
      * 
-     * @return The folder which has been created.
+     * @return The directory which has been created.
      * @throws MojoExecutionException in case of failures.
      */
-    protected File createUnpackFolder()
+    protected File createUnpackDirectory()
         throws MojoFailureException, MojoExecutionException
     {
         // TODO: Should we use a different name or temp file? File.createTempFile( prefix, suffix );
-        File unpackFolder = new File( getOutputDirectory(), "multienv-maven-plugin-unpack" );
+        File unpackDirectory = new File( getOutputDirectory(), "multienv-maven-plugin-unpack" );
 
-        deleteFolderOfPreviousRunIfExist( unpackFolder );
+        deleteDirectoryOfPreviousRunIfExist( unpackDirectory );
 
-        if ( !unpackFolder.mkdirs() )
+        if ( !unpackDirectory.mkdirs() )
         {
-            throw new MojoExecutionException( "The unpack folder " + unpackFolder.getAbsolutePath()
+            throw new MojoExecutionException( "The unpack directory " + unpackDirectory.getAbsolutePath()
                 + " couldn't generated!" );
         }
-        return unpackFolder;
+        return unpackDirectory;
     }
 
     protected String getArchiveExtensionOfTheProjectMainArtifact()
@@ -400,7 +401,7 @@ public abstract class AbstractMultiEnvMojo
         // TODO: Should we use a different name? Or temp File?
         File resourceResult = new File( getOutputDirectory(), "multienv-maven-plugin-resource-output" );
 
-        deleteFolderOfPreviousRunIfExist( resourceResult );
+        deleteDirectoryOfPreviousRunIfExist( resourceResult );
 
         if ( !resourceResult.mkdirs() )
         {

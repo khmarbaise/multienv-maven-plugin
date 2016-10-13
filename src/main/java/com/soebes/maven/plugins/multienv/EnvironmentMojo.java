@@ -47,7 +47,7 @@ public class EnvironmentMojo
 
         if ( identifiedEnvironments.length == 0 )
         {
-            getLog().warn( "No Environment folders found." );
+            getLog().warn( "No Environment directories found." );
             return;
         }
 
@@ -57,7 +57,7 @@ public class EnvironmentMojo
 
         String archiveExt = getArchiveExtensionOfTheProjectMainArtifact();
 
-        File unpackFolder = createUnpackFolder();
+        File unpackDirectory = createUnpackDirectory();
 
         File resourceResult = createPluginResourceOutput();
 
@@ -66,7 +66,7 @@ public class EnvironmentMojo
         // Currently we use the main artifact of the project
         // TODO: May be should make this configurable? So we might use any kind of artifact
         // as source?
-        unarchiveFile( getMavenProject().getArtifact().getFile(), unpackFolder, archiveExt );
+        unarchiveFile( getMavenProject().getArtifact().getFile(), unpackDirectory, archiveExt );
 
         for ( String environment : identifiedEnvironments )
         {
@@ -75,14 +75,14 @@ public class EnvironmentMojo
             // Check why this can happen?
             if ( environment.isEmpty() )
             {
-                getLog().warn( "The given folder '" + environment + "' is empty." );
+                getLog().warn( "The given directory '" + environment + "' is empty." );
                 continue;
             }
 
             try
             {
-                File targetFolder = new File( resourceResult, environment );
-                File createArchiveFile = createArchiveFile( unpackFolder, targetFolder, environment, archiveExt );
+                File targetDirectory = new File( resourceResult, environment );
+                File createArchiveFile = createArchiveFile( unpackDirectory, targetDirectory, environment, archiveExt );
                 getProjectHelper().attachArtifact( getMavenProject(), getMavenProject().getPackaging(), environment,
                                                    createArchiveFile );
             }
@@ -124,18 +124,18 @@ public class EnvironmentMojo
         }
     }
 
-    private File createArchiveFile( File unpackFolder, File targetFolder, String folder, String archiveExt )
+    private File createArchiveFile( File unpackDirectory, File targetDirectory, String directory, String archiveExt )
         throws NoSuchArchiverException, IOException, MojoExecutionException
     {
         final MavenArchiver mavenArchiver = new MavenArchiver();
 
         mavenArchiver.setArchiver( jarArchiver );
 
-        jarArchiver.addFileSet( new DefaultFileSet( targetFolder ) );
-        jarArchiver.addFileSet( new DefaultFileSet( unpackFolder ) );
+        jarArchiver.addFileSet( new DefaultFileSet( targetDirectory ) );
+        jarArchiver.addFileSet( new DefaultFileSet( unpackDirectory ) );
         // jarArchiver.setDuplicateBehavior( duplicate );
 
-        File resultArchive = getArchiveFile( getOutputDirectory(), getFinalName(), folder, archiveExt );
+        File resultArchive = getArchiveFile( getOutputDirectory(), getFinalName(), directory, archiveExt );
 
         mavenArchiver.setOutputFile( resultArchive );
         try
