@@ -32,11 +32,11 @@ under the License.
     <version>0.3</version>
   </parent>
 
-  <artifactId>supplemental-folder-test</artifactId>
+  <artifactId>supplemental-directory-test</artifactId>
   <version>0.1-SNAPSHOT</version>
   <packaging>war</packaging>
 
-  <name>multienv-maven-plugin supplementalFolderTest</name>
+  <name>multienv-maven-plugin supplementalDirectoryTest</name>
 
   <dependencies>
     <dependency>

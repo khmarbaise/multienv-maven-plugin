@@ -20,7 +20,7 @@ import org.codehaus.plexus.archiver.manager.NoSuchArchiverException;
 import org.codehaus.plexus.archiver.util.DefaultFileSet;
 
 /**
- * This goal will create separate packages out of the given environment folder.
+ * This goal will create separate packages out of the given environment directory.
  * 
  * @author Karl-Heinz Marbaise <a href="mailto:khmarbaise@soebes.de">khmarbaise@soebes.de</a>
  */
@@ -51,7 +51,7 @@ public class ConfigurationMojo
 
         if ( identifiedEnvironments.length == 0 )
         {
-            getLog().warn( "No Environment folders found." );
+            getLog().warn( "No Environment directories found." );
             return;
         }
 
@@ -70,14 +70,14 @@ public class ConfigurationMojo
             // Check why this can happen?
             if ( environment.isEmpty() )
             {
-                getLog().warn( "The given folder '" + environment + "' is empty." );
+                getLog().warn( "The given directory '" + environment + "' is empty." );
                 continue;
             }
 
             try
             {
-                File targetFolder = new File( resourceResult, environment );
-                File createArchiveFile = createArchiveFile( targetFolder, environment, archiveType );
+                File targetDirectory = new File( resourceResult, environment );
+                File createArchiveFile = createArchiveFile( targetDirectory, environment, archiveType );
                 getProjectHelper().attachArtifact( getMavenProject(), getMavenProject().getPackaging(), environment,
                                                    createArchiveFile );
             }
@@ -93,17 +93,17 @@ public class ConfigurationMojo
 
     }
 
-    private File createArchiveFile( File targetFolder, String folder, String archiveExt )
+    private File createArchiveFile( File targetDirectory, String directory, String archiveExt )
         throws NoSuchArchiverException, IOException, MojoExecutionException
     {
         final MavenArchiver mavenArchiver = new MavenArchiver();
 
         mavenArchiver.setArchiver( jarArchiver );
 
-        jarArchiver.addFileSet( new DefaultFileSet( targetFolder ) );
+        jarArchiver.addFileSet( new DefaultFileSet( targetDirectory ) );
         // jarArchiver.setDuplicateBehavior( duplicate );
 
-        File resultArchive = getArchiveFile( getOutputDirectory(), getFinalName(), folder, archiveExt );
+        File resultArchive = getArchiveFile( getOutputDirectory(), getFinalName(), directory, archiveExt );
 
         mavenArchiver.setOutputFile( resultArchive );
         try

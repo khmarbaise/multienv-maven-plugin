@@ -29,7 +29,7 @@ appropriate `war` files containing the configuration file `first.properties`
 which might contain some information like the database connections url etc. for
 the appropriate environment.
 
-The environment name (folder name) will automatically being used as classifier
+The environment name (directory name) will automatically being used as classifier
 for the appropriate artifact. So we would get the following files after
 running MultiEnv Maven Plugin via ([assuming you have configured it
 correctly](./usage.html)):
@@ -45,10 +45,10 @@ mvn clean package
   * artifactId-version-prod.war
 
 If you need to add a new environment this can simply achieved by adding
-the appropriate folder under `environments` which can be named for example
+the appropriate directory under `environments` which can be named for example
 `qa-01` plus the configuration you would like to add there.
 
-A new call to `mvn clean package` will identify the new environment (folder) 
+A new call to `mvn clean package` will identify the new environment (directory)
 and now produces a supplemental package for the `qa-01` environment as well.
 
 This would result into the following artifact list:
