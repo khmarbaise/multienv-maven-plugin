@@ -2,8 +2,10 @@ package com.soebes.maven.plugins.multienv;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 
 import org.apache.maven.archiver.MavenArchiver;
+import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.DependencyResolutionRequiredException;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -55,7 +57,26 @@ public class EnvironmentMojo
 
         createLoggingOutput( identifiedEnvironments );
 
-        String archiveExt = getArchiveExtensionOfTheProjectMainArtifact();
+        Artifact artifact = getMavenSession().getCurrentProject().getArtifact();
+        String archiveExt = "zip";
+        if ( artifact.getFile().isFile() )
+        {
+            archiveExt = getArchiveExtensionOfTheArtifact( artifact );
+            getLog().info( "Selected main artifact " + artifact.getId() + " of the project for further processing." );
+        }
+        else
+        {
+            List<Artifact> attachedArtifacts = getMavenSession().getCurrentProject().getAttachedArtifacts();
+            if ( attachedArtifacts.size() > 1 )
+            {
+                getLog().error( "We can not decide which attached artifact to use." );
+                throw new MojoExecutionException( "We can not decide which attached artifact to be used." );
+            }
+
+            archiveExt = getArchiveExtensionOfTheArtifact( attachedArtifacts.get( 0 ) );
+            artifact = attachedArtifacts.get( 0 );
+            getLog().info( "Selected attached artifact " + artifact.getId() + " of the project for further processing." );
+        }
 
         File unpackDirectory = createUnpackDirectory();
 
@@ -63,10 +84,7 @@ public class EnvironmentMojo
 
         filterResources( resourceResult );
 
-        // Currently we use the main artifact of the project
-        // TODO: May be should make this configurable? So we might use any kind of artifact
-        // as source?
-        unarchiveFile( getMavenProject().getArtifact().getFile(), unpackDirectory, archiveExt );
+        unarchiveFile( artifact.getFile(), unpackDirectory, archiveExt );
 
         for ( String environment : identifiedEnvironments )
         {

@@ -9,6 +9,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 
 import org.apache.maven.archiver.MavenArchiveConfiguration;
+import org.apache.maven.artifact.Artifact;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.model.Resource;
 import org.apache.maven.plugin.AbstractMojo;
@@ -199,8 +200,7 @@ public abstract class AbstractMultiEnvMojo
 
     /**
      * @param resourceResult The directory where to search for different environments.
-     * @return The list of identified environments. This
-     *  list is converted to lower case.
+     * @return The list of identified environments. This list is converted to lower case.
      */
     protected String[] getTheEnvironments( File resourceResult )
     {
@@ -392,6 +392,23 @@ public abstract class AbstractMultiEnvMojo
         }
 
         return FileUtils.getExtension( getMavenProject().getArtifact().getFile().getAbsolutePath() ).toLowerCase();
+
+    }
+
+    protected String getArchiveExtensionOfTheArtifact(Artifact artifact)
+        throws MojoExecutionException
+    {
+        if ( artifact == null )
+        {
+            throw new MojoExecutionException( "No artifact has been set yet." );
+        }
+
+        if ( artifact.getFile() == null )
+        {
+            throw new MojoExecutionException( "No artifact file has been set yet." );
+        }
+
+        return FileUtils.getExtension( artifact.getFile().getAbsolutePath() ).toLowerCase();
 
     }
 
