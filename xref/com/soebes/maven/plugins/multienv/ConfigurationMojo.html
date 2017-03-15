@@ -28,7 +28,7 @@
 <a class="jxr_linenumber" name="L20" href="#L20">20</a>  <strong class="jxr_keyword">import</strong> org.codehaus.plexus.archiver.util.DefaultFileSet;
 <a class="jxr_linenumber" name="L21" href="#L21">21</a>  
 <a class="jxr_linenumber" name="L22" href="#L22">22</a>  <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L23" href="#L23">23</a>  <em class="jxr_javadoccomment"> * This goal will create separate packages out of the given environment folder.</em>
+<a class="jxr_linenumber" name="L23" href="#L23">23</a>  <em class="jxr_javadoccomment"> * This goal will create separate packages out of the given environment directory.</em>
 <a class="jxr_linenumber" name="L24" href="#L24">24</a>  <em class="jxr_javadoccomment"> * </em>
 <a class="jxr_linenumber" name="L25" href="#L25">25</a>  <em class="jxr_javadoccomment"> * @author Karl-Heinz Marbaise &lt;a href="<a href="mailto:khmarbaise@soebes.de" target="alexandria_uri">mailto:khmarbaise@soebes.de</a>"&gt;khmarbaise@soebes.de&lt;/a&gt;</em>
 <a class="jxr_linenumber" name="L26" href="#L26">26</a>  <em class="jxr_javadoccomment"> */</em>
@@ -59,76 +59,78 @@
 <a class="jxr_linenumber" name="L51" href="#L51">51</a>  
 <a class="jxr_linenumber" name="L52" href="#L52">52</a>          <strong class="jxr_keyword">if</strong> ( identifiedEnvironments.length == 0 )
 <a class="jxr_linenumber" name="L53" href="#L53">53</a>          {
-<a class="jxr_linenumber" name="L54" href="#L54">54</a>              getLog().warn( <span class="jxr_string">"No Environment folders found."</span> );
+<a class="jxr_linenumber" name="L54" href="#L54">54</a>              getLog().warn( <span class="jxr_string">"No Environment directories found."</span> );
 <a class="jxr_linenumber" name="L55" href="#L55">55</a>              <strong class="jxr_keyword">return</strong>;
 <a class="jxr_linenumber" name="L56" href="#L56">56</a>          }
 <a class="jxr_linenumber" name="L57" href="#L57">57</a>  
-<a class="jxr_linenumber" name="L58" href="#L58">58</a>          createLoggingOutput( identifiedEnvironments );
+<a class="jxr_linenumber" name="L58" href="#L58">58</a>          validateEnvironments( identifiedEnvironments );
 <a class="jxr_linenumber" name="L59" href="#L59">59</a>  
-<a class="jxr_linenumber" name="L60" href="#L60">60</a>          File resourceResult = createPluginResourceOutput();
+<a class="jxr_linenumber" name="L60" href="#L60">60</a>          createLoggingOutput( identifiedEnvironments );
 <a class="jxr_linenumber" name="L61" href="#L61">61</a>  
-<a class="jxr_linenumber" name="L62" href="#L62">62</a>          filterResources( resourceResult );
+<a class="jxr_linenumber" name="L62" href="#L62">62</a>          File resourceResult = createPluginResourceOutput();
 <a class="jxr_linenumber" name="L63" href="#L63">63</a>  
-<a class="jxr_linenumber" name="L64" href="#L64">64</a>          <strong class="jxr_keyword">for</strong> ( String environment : identifiedEnvironments )
-<a class="jxr_linenumber" name="L65" href="#L65">65</a>          {
-<a class="jxr_linenumber" name="L66" href="#L66">66</a>              getLog().info( <span class="jxr_string">"Building Environment: '"</span> + environment + <span class="jxr_string">"'"</span> );
-<a class="jxr_linenumber" name="L67" href="#L67">67</a>  
-<a class="jxr_linenumber" name="L68" href="#L68">68</a>              <em class="jxr_comment">// Check why this can happen?</em>
-<a class="jxr_linenumber" name="L69" href="#L69">69</a>              <strong class="jxr_keyword">if</strong> ( environment.isEmpty() )
-<a class="jxr_linenumber" name="L70" href="#L70">70</a>              {
-<a class="jxr_linenumber" name="L71" href="#L71">71</a>                  getLog().warn( <span class="jxr_string">"The given folder '"</span> + environment + <span class="jxr_string">"' is empty."</span> );
-<a class="jxr_linenumber" name="L72" href="#L72">72</a>                  <strong class="jxr_keyword">continue</strong>;
-<a class="jxr_linenumber" name="L73" href="#L73">73</a>              }
-<a class="jxr_linenumber" name="L74" href="#L74">74</a>  
-<a class="jxr_linenumber" name="L75" href="#L75">75</a>              <strong class="jxr_keyword">try</strong>
-<a class="jxr_linenumber" name="L76" href="#L76">76</a>              {
-<a class="jxr_linenumber" name="L77" href="#L77">77</a>                  File targetFolder = <strong class="jxr_keyword">new</strong> File( resourceResult, environment );
-<a class="jxr_linenumber" name="L78" href="#L78">78</a>                  File createArchiveFile = createArchiveFile( targetFolder, environment, archiveType );
-<a class="jxr_linenumber" name="L79" href="#L79">79</a>                  getProjectHelper().attachArtifact( getMavenProject(), getMavenProject().getPackaging(), environment,
-<a class="jxr_linenumber" name="L80" href="#L80">80</a>                                                     createArchiveFile );
-<a class="jxr_linenumber" name="L81" href="#L81">81</a>              }
-<a class="jxr_linenumber" name="L82" href="#L82">82</a>              <strong class="jxr_keyword">catch</strong> ( NoSuchArchiverException e )
-<a class="jxr_linenumber" name="L83" href="#L83">83</a>              {
-<a class="jxr_linenumber" name="L84" href="#L84">84</a>                  getLog().error( <span class="jxr_string">"Archive creation failed."</span>, e );
-<a class="jxr_linenumber" name="L85" href="#L85">85</a>              }
-<a class="jxr_linenumber" name="L86" href="#L86">86</a>              <strong class="jxr_keyword">catch</strong> ( IOException e )
-<a class="jxr_linenumber" name="L87" href="#L87">87</a>              {
-<a class="jxr_linenumber" name="L88" href="#L88">88</a>                  getLog().error( <span class="jxr_string">"IO Exception."</span>, e );
-<a class="jxr_linenumber" name="L89" href="#L89">89</a>              }
-<a class="jxr_linenumber" name="L90" href="#L90">90</a>          }
-<a class="jxr_linenumber" name="L91" href="#L91">91</a>  
-<a class="jxr_linenumber" name="L92" href="#L92">92</a>      }
+<a class="jxr_linenumber" name="L64" href="#L64">64</a>          filterResources( resourceResult );
+<a class="jxr_linenumber" name="L65" href="#L65">65</a>  
+<a class="jxr_linenumber" name="L66" href="#L66">66</a>          <strong class="jxr_keyword">for</strong> ( String environment : identifiedEnvironments )
+<a class="jxr_linenumber" name="L67" href="#L67">67</a>          {
+<a class="jxr_linenumber" name="L68" href="#L68">68</a>              getLog().info( <span class="jxr_string">"Building Environment: '"</span> + environment + <span class="jxr_string">"'"</span> );
+<a class="jxr_linenumber" name="L69" href="#L69">69</a>  
+<a class="jxr_linenumber" name="L70" href="#L70">70</a>              <em class="jxr_comment">// Check why this can happen?</em>
+<a class="jxr_linenumber" name="L71" href="#L71">71</a>              <strong class="jxr_keyword">if</strong> ( environment.isEmpty() )
+<a class="jxr_linenumber" name="L72" href="#L72">72</a>              {
+<a class="jxr_linenumber" name="L73" href="#L73">73</a>                  getLog().warn( <span class="jxr_string">"The given directory '"</span> + environment + <span class="jxr_string">"' is empty."</span> );
+<a class="jxr_linenumber" name="L74" href="#L74">74</a>                  <strong class="jxr_keyword">continue</strong>;
+<a class="jxr_linenumber" name="L75" href="#L75">75</a>              }
+<a class="jxr_linenumber" name="L76" href="#L76">76</a>  
+<a class="jxr_linenumber" name="L77" href="#L77">77</a>              <strong class="jxr_keyword">try</strong>
+<a class="jxr_linenumber" name="L78" href="#L78">78</a>              {
+<a class="jxr_linenumber" name="L79" href="#L79">79</a>                  File targetDirectory = <strong class="jxr_keyword">new</strong> File( resourceResult, environment );
+<a class="jxr_linenumber" name="L80" href="#L80">80</a>                  File createArchiveFile = createArchiveFile( targetDirectory, environment, archiveType );
+<a class="jxr_linenumber" name="L81" href="#L81">81</a>                  getProjectHelper().attachArtifact( getMavenProject(), getMavenProject().getPackaging(), environment,
+<a class="jxr_linenumber" name="L82" href="#L82">82</a>                                                     createArchiveFile );
+<a class="jxr_linenumber" name="L83" href="#L83">83</a>              }
+<a class="jxr_linenumber" name="L84" href="#L84">84</a>              <strong class="jxr_keyword">catch</strong> ( NoSuchArchiverException e )
+<a class="jxr_linenumber" name="L85" href="#L85">85</a>              {
+<a class="jxr_linenumber" name="L86" href="#L86">86</a>                  getLog().error( <span class="jxr_string">"Archive creation failed."</span>, e );
+<a class="jxr_linenumber" name="L87" href="#L87">87</a>              }
+<a class="jxr_linenumber" name="L88" href="#L88">88</a>              <strong class="jxr_keyword">catch</strong> ( IOException e )
+<a class="jxr_linenumber" name="L89" href="#L89">89</a>              {
+<a class="jxr_linenumber" name="L90" href="#L90">90</a>                  getLog().error( <span class="jxr_string">"IO Exception."</span>, e );
+<a class="jxr_linenumber" name="L91" href="#L91">91</a>              }
+<a class="jxr_linenumber" name="L92" href="#L92">92</a>          }
 <a class="jxr_linenumber" name="L93" href="#L93">93</a>  
-<a class="jxr_linenumber" name="L94" href="#L94">94</a>      <strong class="jxr_keyword">private</strong> File createArchiveFile( File targetFolder, String folder, String archiveExt )
-<a class="jxr_linenumber" name="L95" href="#L95">95</a>          <strong class="jxr_keyword">throws</strong> NoSuchArchiverException, IOException, MojoExecutionException
-<a class="jxr_linenumber" name="L96" href="#L96">96</a>      {
-<a class="jxr_linenumber" name="L97" href="#L97">97</a>          <strong class="jxr_keyword">final</strong> MavenArchiver mavenArchiver = <strong class="jxr_keyword">new</strong> MavenArchiver();
-<a class="jxr_linenumber" name="L98" href="#L98">98</a>  
-<a class="jxr_linenumber" name="L99" href="#L99">99</a>          mavenArchiver.setArchiver( jarArchiver );
+<a class="jxr_linenumber" name="L94" href="#L94">94</a>      }
+<a class="jxr_linenumber" name="L95" href="#L95">95</a>  
+<a class="jxr_linenumber" name="L96" href="#L96">96</a>      <strong class="jxr_keyword">private</strong> File createArchiveFile( File targetDirectory, String directory, String archiveExt )
+<a class="jxr_linenumber" name="L97" href="#L97">97</a>          <strong class="jxr_keyword">throws</strong> NoSuchArchiverException, IOException, MojoExecutionException
+<a class="jxr_linenumber" name="L98" href="#L98">98</a>      {
+<a class="jxr_linenumber" name="L99" href="#L99">99</a>          <strong class="jxr_keyword">final</strong> MavenArchiver mavenArchiver = <strong class="jxr_keyword">new</strong> MavenArchiver();
 <a class="jxr_linenumber" name="L100" href="#L100">100</a> 
-<a class="jxr_linenumber" name="L101" href="#L101">101</a>         jarArchiver.addFileSet( <strong class="jxr_keyword">new</strong> DefaultFileSet( targetFolder ) );
-<a class="jxr_linenumber" name="L102" href="#L102">102</a>         <em class="jxr_comment">// jarArchiver.setDuplicateBehavior( duplicate );</em>
-<a class="jxr_linenumber" name="L103" href="#L103">103</a> 
-<a class="jxr_linenumber" name="L104" href="#L104">104</a>         File resultArchive = getArchiveFile( getOutputDirectory(), getFinalName(), folder, archiveExt );
+<a class="jxr_linenumber" name="L101" href="#L101">101</a>         mavenArchiver.setArchiver( jarArchiver );
+<a class="jxr_linenumber" name="L102" href="#L102">102</a> 
+<a class="jxr_linenumber" name="L103" href="#L103">103</a>         jarArchiver.addFileSet( <strong class="jxr_keyword">new</strong> DefaultFileSet( targetDirectory ) );
+<a class="jxr_linenumber" name="L104" href="#L104">104</a>         <em class="jxr_comment">// jarArchiver.setDuplicateBehavior( duplicate );</em>
 <a class="jxr_linenumber" name="L105" href="#L105">105</a> 
-<a class="jxr_linenumber" name="L106" href="#L106">106</a>         mavenArchiver.setOutputFile( resultArchive );
-<a class="jxr_linenumber" name="L107" href="#L107">107</a>         <strong class="jxr_keyword">try</strong>
-<a class="jxr_linenumber" name="L108" href="#L108">108</a>         {
-<a class="jxr_linenumber" name="L109" href="#L109">109</a>             mavenArchiver.createArchive( getMavenSession(), getMavenProject(), getArchive() );
-<a class="jxr_linenumber" name="L110" href="#L110">110</a>         }
-<a class="jxr_linenumber" name="L111" href="#L111">111</a>         <strong class="jxr_keyword">catch</strong> ( ArchiverException | ManifestException | DependencyResolutionRequiredException e )
-<a class="jxr_linenumber" name="L112" href="#L112">112</a>         {
-<a class="jxr_linenumber" name="L113" href="#L113">113</a>             getLog().error( e.getMessage(), e );
-<a class="jxr_linenumber" name="L114" href="#L114">114</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> MojoExecutionException( e.getMessage(), e );
-<a class="jxr_linenumber" name="L115" href="#L115">115</a>         }
-<a class="jxr_linenumber" name="L116" href="#L116">116</a> 
-<a class="jxr_linenumber" name="L117" href="#L117">117</a>         <strong class="jxr_keyword">return</strong> resultArchive;
+<a class="jxr_linenumber" name="L106" href="#L106">106</a>         File resultArchive = getArchiveFile( getOutputDirectory(), getFinalName(), directory, archiveExt );
+<a class="jxr_linenumber" name="L107" href="#L107">107</a> 
+<a class="jxr_linenumber" name="L108" href="#L108">108</a>         mavenArchiver.setOutputFile( resultArchive );
+<a class="jxr_linenumber" name="L109" href="#L109">109</a>         <strong class="jxr_keyword">try</strong>
+<a class="jxr_linenumber" name="L110" href="#L110">110</a>         {
+<a class="jxr_linenumber" name="L111" href="#L111">111</a>             mavenArchiver.createArchive( getMavenSession(), getMavenProject(), getArchive() );
+<a class="jxr_linenumber" name="L112" href="#L112">112</a>         }
+<a class="jxr_linenumber" name="L113" href="#L113">113</a>         <strong class="jxr_keyword">catch</strong> ( ArchiverException | ManifestException | DependencyResolutionRequiredException e )
+<a class="jxr_linenumber" name="L114" href="#L114">114</a>         {
+<a class="jxr_linenumber" name="L115" href="#L115">115</a>             getLog().error( e.getMessage(), e );
+<a class="jxr_linenumber" name="L116" href="#L116">116</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> MojoExecutionException( e.getMessage(), e );
+<a class="jxr_linenumber" name="L117" href="#L117">117</a>         }
 <a class="jxr_linenumber" name="L118" href="#L118">118</a> 
-<a class="jxr_linenumber" name="L119" href="#L119">119</a>     }
+<a class="jxr_linenumber" name="L119" href="#L119">119</a>         <strong class="jxr_keyword">return</strong> resultArchive;
 <a class="jxr_linenumber" name="L120" href="#L120">120</a> 
-<a class="jxr_linenumber" name="L121" href="#L121">121</a> }
+<a class="jxr_linenumber" name="L121" href="#L121">121</a>     }
+<a class="jxr_linenumber" name="L122" href="#L122">122</a> 
+<a class="jxr_linenumber" name="L123" href="#L123">123</a> }
 </pre>
 <hr/>
-<div id="footer">Copyright &#169; 2011&#x2013;2016 <a href="http://www.soebes.com">SoftwareEntwicklung Beratung Schulung</a>. All rights reserved.</div>
+<div id="footer">Copyright &#169; 2011&#x2013;2017 <a href="http://www.soebes.com">SoftwareEntwicklung Beratung Schulung</a>. All rights reserved.</div>
 </body>
 </html>
