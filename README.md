@@ -136,7 +136,7 @@ to your pom file (we assume here a war file):
       <plugin>
         <groupId>com.soebes.maven.plugins</groupId>
         <artifactId>multienv-maven-plugin</artifactId>
-        <version>0.2.0</version>
+        <version>0.3.1</version>
         <executions>
           <execution>
             <goals>
