@@ -78,7 +78,7 @@ public class ConfigurationMojo
             {
                 File targetDirectory = new File( resourceResult, environment );
                 File createArchiveFile = createArchiveFile( targetDirectory, environment, archiveType );
-                getProjectHelper().attachArtifact( getMavenProject(), getMavenProject().getPackaging(), environment,
+                getProjectHelper().attachArtifact( getMavenProject(), archiveType, environment,
                                                    createArchiveFile );
             }
             catch ( NoSuchArchiverException e )

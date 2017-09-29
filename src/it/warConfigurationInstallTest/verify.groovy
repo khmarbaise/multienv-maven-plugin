@@ -40,7 +40,7 @@ def classifierList = [
     'qa01',
     'qa02',
     'test01',
-    'test02',
+    'test02'
 ]
 
 def buildLogFile = new File( basedir, "build.log");
@@ -55,17 +55,39 @@ if (!targetDirectory.exists()) {
 }
 
 classifierList.each { classifier ->
-    def tf = new File (targetDirectory, "war-with-classifier-test-" + projectVersion + "-" + classifier + ".jar")
+    def tf = new File (targetDirectory, "war-configuration-install-test-" + projectVersion + "-" + classifier + ".jar")
     println "Checking ${classifier}: " + tf.getAbsolutePath()
     if (!tf.exists()) {
         throw new FileNotFoundException("The file " + tf.getAbsolutePath() + " does not exists.")
     }
 }
 
-def tfWar = new File (targetDirectory, "war-with-classifier-test-" + projectVersion + "-new.war")
+def tfWar = new File (targetDirectory, "war-configuration-install-test-" + projectVersion + ".war")
 if (!tfWar.exists()) {
     throw new FileNotFoundException("The war file " + tfWar.getAbsolutePath() + " does not exists.")
 }
 
+println "local repository location: ${localRepositoryPath}"
+
+def targetDirectoryRepository = new File ("${localRepositoryPath}/com/soebes/maven/plugins/it/multienv/war-configuration-install-test/${projectVersion}")
+if (!targetDirectoryRepository.exists()) {
+    throw new FileNotFoundException("target directory does not exists.")
+}
+
+println "Checking the ${targetDirectoryRepository}..."
+
+// Check the artifacts in installed repository.
+classifierList.each { classifier ->
+    def tf = new File (targetDirectoryRepository, "war-configuration-install-test-" + projectVersion + "-" + classifier + ".jar")
+    println "Checking ${classifier}: " + tf.getAbsolutePath()
+    if (!tf.exists()) {
+        throw new FileNotFoundException("The file " + tf.getAbsolutePath() + " does not exists.")
+    }
+}
+
+def tfRepo = new File (targetDirectoryRepository, "war-configuration-install-test-" + projectVersion + ".war")
+if (!tfRepo.exists()) {
+    throw new FileNotFoundException("The war file " + tfRepo.getAbsolutePath() + " does not exists.")
+}
 
 return true;
