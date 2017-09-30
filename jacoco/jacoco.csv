@@ -1,0 +1,6 @@
+GROUP,PACKAGE,CLASS,INSTRUCTION_MISSED,INSTRUCTION_COVERED,BRANCH_MISSED,BRANCH_COVERED,LINE_MISSED,LINE_COVERED,COMPLEXITY_MISSED,COMPLEXITY_COVERED,METHOD_MISSED,METHOD_COVERED
+The MultiEnv Maven Plugin,com.soebes.maven.plugins.multienv,ConfigurationMojo,163,0,6,0,34,0,6,0,3,0
+The MultiEnv Maven Plugin,com.soebes.maven.plugins.multienv,AbstractMultiEnvMojo.new FileFilter() {...},1,15,2,2,0,2,2,2,0,2
+The MultiEnv Maven Plugin,com.soebes.maven.plugins.multienv,AbstractMultiEnvMojo,345,189,21,25,82,38,37,17,26,5
+The MultiEnv Maven Plugin,com.soebes.maven.plugins.multienv,EnvironmentMojo,322,0,10,0,64,0,9,0,4,0
+The MultiEnv Maven Plugin,com.soebes.maven.plugins.multienv,HelpMojo,909,0,112,0,159,0,72,0,16,0

@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>EnvironmentMojo.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">The MultiEnv Maven Plugin</a> &gt; <a href="index.source.html" class="el_package">com.soebes.maven.plugins.multienv</a> &gt; <span class="el_source">EnvironmentMojo.java</span></div><h1>EnvironmentMojo.java</h1><pre class="source lang-java linenums">package com.soebes.maven.plugins.multienv;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.List;
+
+import org.apache.maven.archiver.MavenArchiver;
+import org.apache.maven.artifact.Artifact;
+import org.apache.maven.artifact.DependencyResolutionRequiredException;
+import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugins.annotations.Component;
+import org.apache.maven.plugins.annotations.LifecyclePhase;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.codehaus.plexus.archiver.Archiver;
+import org.codehaus.plexus.archiver.ArchiverException;
+import org.codehaus.plexus.archiver.UnArchiver;
+import org.codehaus.plexus.archiver.jar.JarArchiver;
+import org.codehaus.plexus.archiver.jar.ManifestException;
+import org.codehaus.plexus.archiver.manager.ArchiverManager;
+import org.codehaus.plexus.archiver.manager.NoSuchArchiverException;
+import org.codehaus.plexus.archiver.util.DefaultFileSet;
+
+/**
+ * This mojo will get the main artifact of the current project unpack it and use the files of the appropriate
+ * environment and produce new files which contain the original files plus the supplemental files which have been given
+ * by the configuration for each environment.
+ * 
+ * @author Karl-Heinz Marbaise &lt;a href=&quot;mailto:khmarbaise@soebes.de&quot;&gt;khmarbaise@soebes.de&lt;/a&gt;
+ */
+@Mojo( name = &quot;environment&quot;, defaultPhase = LifecyclePhase.PACKAGE, requiresProject = true, threadSafe = true )
+<span class="nc" id="L32">public class EnvironmentMojo</span>
+    extends AbstractMultiEnvMojo
+{
+
+    /**
+     * The JAR archiver needed for archiving the environments.
+     */
+    @Component( role = Archiver.class, hint = &quot;jar&quot; )
+    private JarArchiver jarArchiver;
+
+    @Component
+    private ArchiverManager manager;
+
+    public void execute()
+        throws MojoExecutionException, MojoFailureException
+    {
+<span class="nc" id="L48">        String[] identifiedEnvironments = getTheEnvironments( getSourceDirectory() );</span>
+
+<span class="nc bnc" id="L50" title="All 2 branches missed.">        if ( identifiedEnvironments.length == 0 )</span>
+        {
+<span class="nc" id="L52">            getLog().warn( &quot;No Environment directories found.&quot; );</span>
+<span class="nc" id="L53">            return;</span>
+        }
+
+<span class="nc" id="L56">        validateEnvironments( identifiedEnvironments );</span>
+
+<span class="nc" id="L58">        createLoggingOutput( identifiedEnvironments );</span>
+
+<span class="nc" id="L60">        Artifact artifact = getMavenSession().getCurrentProject().getArtifact();</span>
+<span class="nc" id="L61">        String archiveExt = &quot;zip&quot;;</span>
+<span class="nc bnc" id="L62" title="All 2 branches missed.">        if ( artifact.getFile().isFile() )</span>
+        {
+<span class="nc" id="L64">            archiveExt = getArchiveExtensionOfTheArtifact( artifact );</span>
+<span class="nc" id="L65">            getLog().info( &quot;Selected main artifact &quot; + artifact.getId() + &quot; of the project for further processing.&quot; );</span>
+        }
+        else
+        {
+<span class="nc" id="L69">            List&lt;Artifact&gt; attachedArtifacts = getMavenSession().getCurrentProject().getAttachedArtifacts();</span>
+<span class="nc bnc" id="L70" title="All 2 branches missed.">            if ( attachedArtifacts.size() &gt; 1 )</span>
+            {
+<span class="nc" id="L72">                getLog().error( &quot;We can not decide which attached artifact to use.&quot; );</span>
+<span class="nc" id="L73">                throw new MojoExecutionException( &quot;We can not decide which attached artifact to be used.&quot; );</span>
+            }
+
+<span class="nc" id="L76">            archiveExt = getArchiveExtensionOfTheArtifact( attachedArtifacts.get( 0 ) );</span>
+<span class="nc" id="L77">            artifact = attachedArtifacts.get( 0 );</span>
+<span class="nc" id="L78">            getLog().info( &quot;Selected attached artifact &quot; + artifact.getId() + &quot; of the project for further processing.&quot; );</span>
+        }
+
+<span class="nc" id="L81">        File unpackDirectory = createUnpackDirectory();</span>
+
+<span class="nc" id="L83">        File resourceResult = createPluginResourceOutput();</span>
+
+<span class="nc" id="L85">        filterResources( resourceResult );</span>
+
+<span class="nc" id="L87">        unarchiveFile( artifact.getFile(), unpackDirectory, archiveExt );</span>
+
+<span class="nc bnc" id="L89" title="All 2 branches missed.">        for ( String environment : identifiedEnvironments )</span>
+        {
+<span class="nc" id="L91">            getLog().info( &quot;Building Environment: '&quot; + environment + &quot;'&quot; );</span>
+
+            // Check why this can happen?
+<span class="nc bnc" id="L94" title="All 2 branches missed.">            if ( environment.isEmpty() )</span>
+            {
+<span class="nc" id="L96">                getLog().warn( &quot;The given directory '&quot; + environment + &quot;' is empty.&quot; );</span>
+<span class="nc" id="L97">                continue;</span>
+            }
+
+            try
+            {
+<span class="nc" id="L102">                File targetDirectory = new File( resourceResult, environment );</span>
+<span class="nc" id="L103">                File createArchiveFile = createArchiveFile( unpackDirectory, targetDirectory, environment, archiveExt );</span>
+<span class="nc" id="L104">                getProjectHelper().attachArtifact( getMavenProject(), getMavenProject().getPackaging(), environment,</span>
+                                                   createArchiveFile );
+            }
+<span class="nc" id="L107">            catch ( NoSuchArchiverException e )</span>
+            {
+<span class="nc" id="L109">                getLog().error( &quot;Archive creation failed.&quot;, e );</span>
+<span class="nc" id="L110">                throw new MojoExecutionException( &quot;Archive creation failed.&quot;, e );</span>
+            }
+<span class="nc" id="L112">            catch ( IOException e )</span>
+            {
+<span class="nc" id="L114">                getLog().error( &quot;IO Exception.&quot;, e );</span>
+<span class="nc" id="L115">                throw new MojoExecutionException( &quot;IO Exception.&quot;, e );</span>
+<span class="nc" id="L116">            }</span>
+        }
+
+<span class="nc" id="L119">    }</span>
+
+    private void unarchiveFile( File sourceFile, File destDirectory, String archiveExt )
+        throws MojoExecutionException
+    {
+        try
+        {
+<span class="nc" id="L126">            UnArchiver unArchiver = manager.getUnArchiver( archiveExt );</span>
+
+<span class="nc" id="L128">            unArchiver.setSourceFile( sourceFile );</span>
+<span class="nc" id="L129">            unArchiver.setUseJvmChmod( true );</span>
+<span class="nc" id="L130">            unArchiver.setDestDirectory( destDirectory );</span>
+<span class="nc" id="L131">            unArchiver.setOverwrite( true );</span>
+<span class="nc" id="L132">            unArchiver.extract();</span>
+        }
+<span class="nc" id="L134">        catch ( ArchiverException e )</span>
+        {
+<span class="nc" id="L136">            throw new MojoExecutionException( &quot;Error unpacking file [&quot; + sourceFile.getAbsolutePath() + &quot;]&quot; + &quot; to [&quot;</span>
+<span class="nc" id="L137">                + destDirectory.getAbsolutePath() + &quot;]&quot;, e );</span>
+        }
+<span class="nc" id="L139">        catch ( NoSuchArchiverException e )</span>
+        {
+<span class="nc" id="L141">            getLog().error( &quot;Unknown archiver.&quot; + &quot; with unknown extension [&quot; + archiveExt + &quot;]&quot; );</span>
+<span class="nc" id="L142">        }</span>
+<span class="nc" id="L143">    }</span>
+
+    private File createArchiveFile( File unpackDirectory, File targetDirectory, String directory, String archiveExt )
+        throws NoSuchArchiverException, IOException, MojoExecutionException
+    {
+<span class="nc" id="L148">        final MavenArchiver mavenArchiver = new MavenArchiver();</span>
+
+<span class="nc" id="L150">        mavenArchiver.setArchiver( jarArchiver );</span>
+
+<span class="nc" id="L152">        jarArchiver.addFileSet( new DefaultFileSet( targetDirectory ) );</span>
+<span class="nc" id="L153">        jarArchiver.addFileSet( new DefaultFileSet( unpackDirectory ) );</span>
+        // jarArchiver.setDuplicateBehavior( duplicate );
+
+<span class="nc" id="L156">        File resultArchive = getArchiveFile( getOutputDirectory(), getFinalName(), directory, archiveExt );</span>
+
+<span class="nc" id="L158">        mavenArchiver.setOutputFile( resultArchive );</span>
+        try
+        {
+<span class="nc" id="L161">            mavenArchiver.createArchive( getMavenSession(), getMavenProject(), getArchive() );</span>
+        }
+<span class="nc" id="L163">        catch ( ArchiverException | ManifestException | DependencyResolutionRequiredException e )</span>
+        {
+<span class="nc" id="L165">            getLog().error( e.getMessage(), e );</span>
+<span class="nc" id="L166">            throw new MojoExecutionException( e.getMessage(), e );</span>
+<span class="nc" id="L167">        }</span>
+
+<span class="nc" id="L169">        return resultArchive;</span>
+
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.9.201702052155</span></div></body></html>

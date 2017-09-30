@@ -86,7 +86,7 @@
 <a class="jxr_linenumber" name="L78" href="#L78">78</a>              {
 <a class="jxr_linenumber" name="L79" href="#L79">79</a>                  File targetDirectory = <strong class="jxr_keyword">new</strong> File( resourceResult, environment );
 <a class="jxr_linenumber" name="L80" href="#L80">80</a>                  File createArchiveFile = createArchiveFile( targetDirectory, environment, archiveType );
-<a class="jxr_linenumber" name="L81" href="#L81">81</a>                  getProjectHelper().attachArtifact( getMavenProject(), getMavenProject().getPackaging(), environment,
+<a class="jxr_linenumber" name="L81" href="#L81">81</a>                  getProjectHelper().attachArtifact( getMavenProject(), archiveType, environment,
 <a class="jxr_linenumber" name="L82" href="#L82">82</a>                                                     createArchiveFile );
 <a class="jxr_linenumber" name="L83" href="#L83">83</a>              }
 <a class="jxr_linenumber" name="L84" href="#L84">84</a>              <strong class="jxr_keyword">catch</strong> ( NoSuchArchiverException e )

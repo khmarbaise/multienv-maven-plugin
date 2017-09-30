@@ -1,0 +1,531 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AbstractMultiEnvMojo.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">The MultiEnv Maven Plugin</a> &gt; <a href="index.source.html" class="el_package">com.soebes.maven.plugins.multienv</a> &gt; <span class="el_source">AbstractMultiEnvMojo.java</span></div><h1>AbstractMultiEnvMojo.java</h1><pre class="source lang-java linenums">package com.soebes.maven.plugins.multienv;
+
+import java.io.File;
+import java.io.FileFilter;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedHashSet;
+import java.util.List;
+
+import org.apache.maven.archiver.MavenArchiveConfiguration;
+import org.apache.maven.artifact.Artifact;
+import org.apache.maven.execution.MavenSession;
+import org.apache.maven.model.Resource;
+import org.apache.maven.plugin.AbstractMojo;
+import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugins.annotations.Component;
+import org.apache.maven.plugins.annotations.Parameter;
+import org.apache.maven.project.MavenProject;
+import org.apache.maven.project.MavenProjectHelper;
+import org.apache.maven.shared.filtering.MavenFilteringException;
+import org.apache.maven.shared.filtering.MavenResourcesExecution;
+import org.apache.maven.shared.filtering.MavenResourcesFiltering;
+import org.codehaus.plexus.util.FileUtils;
+
+/**
+ * @author Karl-Heinz Marbaise &lt;a href=&quot;mailto:khmarbaise@soebes.de&quot;&gt;khmarbaise@soebes.de&lt;/a&gt;
+ */
+<span class="nc" id="L30">public abstract class AbstractMultiEnvMojo</span>
+    extends AbstractMojo
+{
+
+    /**
+     * The project currently being build.
+     */
+    @Parameter( defaultValue = &quot;${project}&quot;, required = true, readonly = true )
+    private MavenProject mavenProject;
+
+    /**
+     * The current Maven session.
+     */
+    @Parameter( defaultValue = &quot;${session}&quot;, required = true, readonly = true )
+    private MavenSession mavenSession;
+
+    /**
+     * The directory for the generated configuration packages.
+     */
+    @Parameter( defaultValue = &quot;${project.build.directory}&quot;, required = true, readonly = true )
+    private File outputDirectory;
+
+    /**
+     * directory which contains the different environments
+     */
+    // TODO: src/main ? property?
+    @Parameter( defaultValue = &quot;${basedir}/src/main/environments&quot; )
+    private File sourceDirectory;
+
+    /**
+     * The character encoding scheme to be applied when filtering resources.
+     */
+    @Parameter( defaultValue = &quot;${project.build.sourceEncoding}&quot; )
+    private String encoding;
+
+    /**
+     * Name of the generated JAR.
+     */
+    @Parameter( defaultValue = &quot;${project.build.finalName}&quot;, readonly = true )
+    private String finalName;
+
+    @Component
+    private MavenProjectHelper projectHelper;
+
+    /**
+     * The archive configuration to use. See &lt;a href=&quot;http://maven.apache.org/shared/maven-archiver/index.html&quot;&gt;Maven
+     * Archiver Reference&lt;/a&gt;.
+     */
+<span class="nc" id="L78">    @Parameter</span>
+    private MavenArchiveConfiguration archive = new MavenArchiveConfiguration();
+
+    /**
+     * Expression preceded with the String won't be interpolated \${foo} will be replaced with ${foo}
+     */
+    @Parameter
+    private String escapeString;
+
+    /**
+     * Whether to escape backslashes and colons in windows-style paths.
+     */
+    @Parameter( defaultValue = &quot;true&quot; )
+    private boolean escapeWindowsPaths;
+
+    /**
+     * The list of extra filter properties files to be used along with System properties, project properties, and filter
+     * properties files specified in the POM build/filters section, which should be used for the filtering during the
+     * current mojo execution. &lt;br/&gt;
+     * Normally, these will be configured from a plugin's execution section, to provide a different set of filters for a
+     * particular execution. For instance, starting in Maven 2.2.0, you have the option of configuring executions with
+     * the id's &lt;code&gt;default-resources&lt;/code&gt; and &lt;code&gt;default-testResources&lt;/code&gt; to supply different configurations
+     * for the two different types of resources. By supplying &lt;code&gt;extraFilters&lt;/code&gt; configurations, you can separate
+     * which filters are used for which type of resource.
+     */
+    @Parameter
+    private List&lt;String&gt; filters;
+
+    /**
+     * Support filtering of filenames directories etc.
+     */
+    @Parameter( defaultValue = &quot;false&quot; )
+    private boolean fileNameFiltering;
+
+    /**
+     * &lt;p&gt;
+     * Set of delimiters for expressions to filter within the resources. These delimiters are specified in the form
+     * 'beginToken*endToken'. If no '*' is given, the delimiter is assumed to be the same for start and end.
+     * &lt;/p&gt;
+     * &lt;p&gt;
+     * So, the default filtering delimiters might be specified as:
+     * &lt;/p&gt;
+     * 
+     * &lt;pre&gt;
+     * &amp;lt;delimiters&amp;gt;
+     *   &amp;lt;delimiter&amp;gt;${*}&amp;lt;/delimiter&amp;gt;
+     *   &amp;lt;delimiter&amp;gt;@&amp;lt;/delimiter&amp;gt;
+     * &amp;lt;/delimiters&amp;gt;
+     * &lt;/pre&gt;
+     * &lt;p&gt;
+     * Since the '@' delimiter is the same on both ends, we don't need to specify '@*@' (though we can).
+     * &lt;/p&gt;
+     */
+    @Parameter
+    private LinkedHashSet&lt;String&gt; delimiters;
+
+    /**
+     * Use default delimiters in addition to custom delimiters, if any.
+     */
+    @Parameter( defaultValue = &quot;true&quot; )
+    private boolean useDefaultDelimiters;
+
+    /**
+     * Include empty directories or not.
+     */
+    @Parameter( defaultValue = &quot;true&quot; )
+    private boolean includeEmptyDirs;
+
+    /**
+     * Additional file extensions to not apply filtering (already defined are : jpg, jpeg, gif, bmp, png)
+     */
+    @Parameter
+    private List&lt;String&gt; nonFilteredFileExtensions;
+
+    /**
+     * stop searching endToken at the end of line
+     */
+    @Parameter( defaultValue = &quot;false&quot; )
+    private boolean supportMultiLineFiltering;
+
+    @Component( role = MavenResourcesFiltering.class, hint = &quot;default&quot; )
+    protected MavenResourcesFiltering mavenResourcesFiltering;
+
+    public MavenArchiveConfiguration getArchive()
+    {
+<span class="nc" id="L163">        return archive;</span>
+    }
+
+    public MavenProject getMavenProject()
+    {
+<span class="nc" id="L168">        return mavenProject;</span>
+    }
+
+    public MavenSession getMavenSession()
+    {
+<span class="nc" id="L173">        return mavenSession;</span>
+    }
+
+    public File getOutputDirectory()
+    {
+<span class="nc" id="L178">        return outputDirectory;</span>
+    }
+
+    public MavenProjectHelper getProjectHelper()
+    {
+<span class="nc" id="L183">        return projectHelper;</span>
+    }
+
+    public File getSourceDirectory()
+    {
+<span class="nc" id="L188">        return sourceDirectory;</span>
+    }
+
+    public String getFinalName()
+    {
+<span class="nc" id="L193">        return finalName;</span>
+    }
+
+    public String getEncoding()
+    {
+<span class="nc" id="L198">        return encoding;</span>
+    }
+
+    /**
+     * @param resourceResult The directory where to search for different environments.
+     * @return The list of identified environments. This list is converted to lower case.
+     */
+    protected String[] getTheEnvironments( File resourceResult )
+    {
+<span class="fc" id="L207">        File[] theResultingFolders = resourceResult.listFiles( new FileFilter()</span>
+<span class="fc" id="L208">        {</span>
+            @Override
+            public boolean accept( File pathname )
+            {
+<span class="pc bpc" id="L212" title="2 of 4 branches missed.">                return pathname.isDirectory() &amp;&amp; pathname.exists();</span>
+            }
+        } );
+
+<span class="fc" id="L216">        String[] result = new String[theResultingFolders.length];</span>
+<span class="fc bfc" id="L217" title="All 2 branches covered.">        for ( int i = 0; i &lt; theResultingFolders.length; i++ )</span>
+        {
+<span class="fc" id="L219">            getLog().debug( &quot;Folders: &quot; + theResultingFolders[i].getName() );</span>
+<span class="fc" id="L220">            result[i] = theResultingFolders[i].getName().toLowerCase();</span>
+        }
+<span class="fc" id="L222">        return result;</span>
+    }
+
+    /**
+     * This will check if an environment (directory) contains a space cause the environment will later being used as a
+     * classifier which does not allow a space.
+     * 
+     * @param environmens The environments which should be checked.
+     * @return The list contains the invalid environments. If the list is {@code empty} all environments are ok.
+     */
+    protected List&lt;String&gt; environmentNamesAreValid( String[] environmens )
+    {
+<span class="fc" id="L234">        List&lt;String&gt; result = new ArrayList&lt;&gt;();</span>
+<span class="fc bfc" id="L235" title="All 2 branches covered.">        for ( String item : environmens )</span>
+        {
+<span class="fc bfc" id="L237" title="All 2 branches covered.">            if ( item.contains( &quot; &quot; ) )</span>
+            {
+<span class="fc" id="L239">                result.add( item );</span>
+            }
+        }
+<span class="fc" id="L242">        return result;</span>
+    }
+
+    /**
+     * Returns the archive file to generate, based on an optional classifier.
+     *
+     * @param basedir the output directory
+     * @param finalName the name of the ear file
+     * @param classifier an optional classifier
+     * @return the file to generate
+     */
+    protected File getArchiveFile( File basedir, String finalName, String classifier, String archiveExt )
+    {
+<span class="fc bfc" id="L255" title="All 2 branches covered.">        if ( basedir == null )</span>
+        {
+<span class="fc" id="L257">            throw new IllegalArgumentException( &quot;basedir is not allowed to be null&quot; );</span>
+        }
+<span class="fc bfc" id="L259" title="All 2 branches covered.">        if ( finalName == null )</span>
+        {
+<span class="fc" id="L261">            throw new IllegalArgumentException( &quot;finalName is not allowed to be null&quot; );</span>
+        }
+<span class="fc bfc" id="L263" title="All 2 branches covered.">        if ( archiveExt == null )</span>
+        {
+<span class="fc" id="L265">            throw new IllegalArgumentException( &quot;archiveExt is not allowed to be null&quot; );</span>
+        }
+
+<span class="fc bfc" id="L268" title="All 2 branches covered.">        if ( finalName.isEmpty() )</span>
+        {
+<span class="fc" id="L270">            throw new IllegalArgumentException( &quot;finalName is not allowed to be empty.&quot; );</span>
+        }
+<span class="fc bfc" id="L272" title="All 2 branches covered.">        if ( archiveExt.isEmpty() )</span>
+        {
+<span class="fc" id="L274">            throw new IllegalArgumentException( &quot;archiveExt is not allowed to be empty.&quot; );</span>
+        }
+
+<span class="fc" id="L277">        StringBuilder fileName = new StringBuilder( finalName );</span>
+
+<span class="fc bfc" id="L279" title="All 2 branches covered.">        if ( hasClassifier( classifier ) )</span>
+        {
+<span class="fc" id="L281">            fileName.append( &quot;-&quot; ).append( classifier );</span>
+        }
+
+<span class="fc" id="L284">        fileName.append( '.' );</span>
+<span class="fc" id="L285">        fileName.append( archiveExt );</span>
+
+<span class="fc" id="L287">        return new File( basedir, fileName.toString() );</span>
+    }
+
+    public String getEscapeString()
+    {
+<span class="nc" id="L292">        return escapeString;</span>
+    }
+
+    public boolean isEscapeWindowsPaths()
+    {
+<span class="nc" id="L297">        return escapeWindowsPaths;</span>
+    }
+
+    public List&lt;String&gt; getFilters()
+    {
+<span class="nc" id="L302">        return filters;</span>
+    }
+
+    public boolean isFileNameFiltering()
+    {
+<span class="nc" id="L307">        return fileNameFiltering;</span>
+    }
+
+    public LinkedHashSet&lt;String&gt; getDelimiters()
+    {
+<span class="nc" id="L312">        return delimiters;</span>
+    }
+
+    public boolean isUseDefaultDelimiters()
+    {
+<span class="nc" id="L317">        return useDefaultDelimiters;</span>
+    }
+
+    public List&lt;String&gt; getNonFilteredFileExtensions()
+    {
+<span class="nc" id="L322">        return nonFilteredFileExtensions;</span>
+    }
+
+    public boolean isSupportMultiLineFiltering()
+    {
+<span class="nc" id="L327">        return supportMultiLineFiltering;</span>
+    }
+
+    private boolean hasClassifier( String classifier )
+    {
+<span class="fc" id="L332">        boolean result = false;</span>
+<span class="pc bpc" id="L333" title="1 of 4 branches missed.">        if ( classifier != null &amp;&amp; classifier.trim().length() &gt; 0 )</span>
+        {
+<span class="fc" id="L335">            result = true;</span>
+        }
+
+<span class="fc" id="L338">        return result;</span>
+    }
+
+    protected void deleteDirectoryOfPreviousRunIfExist( File directoryOfPreviousRun )
+        throws MojoExecutionException
+    {
+
+<span class="nc bnc" id="L345" title="All 2 branches missed.">        if ( directoryOfPreviousRun.exists() )</span>
+        {
+            try
+            {
+<span class="nc" id="L349">                FileUtils.deleteDirectory( directoryOfPreviousRun );</span>
+            }
+<span class="nc" id="L351">            catch ( IOException e )</span>
+            {
+<span class="nc" id="L353">                throw new MojoExecutionException( &quot;Failure while deleting &quot; + directoryOfPreviousRun.getAbsolutePath(),</span>
+                                                  e );
+<span class="nc" id="L355">            }</span>
+        }
+<span class="nc" id="L357">    }</span>
+
+    /**
+     * Create the unpack directory for later unpacking of the main artifact.
+     * 
+     * @return The directory which has been created.
+     * @throws MojoExecutionException in case of failures.
+     */
+    protected File createUnpackDirectory()
+        throws MojoFailureException, MojoExecutionException
+    {
+        // TODO: Should we use a different name or temp file? File.createTempFile( prefix, suffix );
+<span class="nc" id="L369">        File unpackDirectory = new File( getOutputDirectory(), &quot;multienv-maven-plugin-unpack&quot; );</span>
+
+<span class="nc" id="L371">        deleteDirectoryOfPreviousRunIfExist( unpackDirectory );</span>
+
+<span class="nc bnc" id="L373" title="All 2 branches missed.">        if ( !unpackDirectory.mkdirs() )</span>
+        {
+<span class="nc" id="L375">            throw new MojoExecutionException( &quot;The unpack directory &quot; + unpackDirectory.getAbsolutePath()</span>
+                + &quot; couldn't generated!&quot; );
+        }
+<span class="nc" id="L378">        return unpackDirectory;</span>
+    }
+
+    protected String getArchiveExtensionOfTheProjectMainArtifact()
+        throws MojoExecutionException
+    {
+<span class="nc bnc" id="L384" title="All 2 branches missed.">        if ( getMavenProject().getArtifact() == null )</span>
+        {
+<span class="nc" id="L386">            throw new MojoExecutionException( &quot;No main artifact has been set yet.&quot; );</span>
+        }
+
+<span class="nc bnc" id="L389" title="All 2 branches missed.">        if ( getMavenProject().getArtifact().getFile() == null )</span>
+        {
+<span class="nc" id="L391">            throw new MojoExecutionException( &quot;No main artifact file has been set yet.&quot; );</span>
+        }
+
+<span class="nc" id="L394">        return FileUtils.getExtension( getMavenProject().getArtifact().getFile().getAbsolutePath() ).toLowerCase();</span>
+
+    }
+
+    protected String getArchiveExtensionOfTheArtifact(Artifact artifact)
+        throws MojoExecutionException
+    {
+<span class="nc bnc" id="L401" title="All 2 branches missed.">        if ( artifact == null )</span>
+        {
+<span class="nc" id="L403">            throw new MojoExecutionException( &quot;No artifact has been set yet.&quot; );</span>
+        }
+
+<span class="nc bnc" id="L406" title="All 2 branches missed.">        if ( artifact.getFile() == null )</span>
+        {
+<span class="nc" id="L408">            throw new MojoExecutionException( &quot;No artifact file has been set yet.&quot; );</span>
+        }
+
+<span class="nc" id="L411">        return FileUtils.getExtension( artifact.getFile().getAbsolutePath() ).toLowerCase();</span>
+
+    }
+
+    protected File createPluginResourceOutput()
+        throws MojoExecutionException
+    {
+        // TODO: Should we use a different name? Or temp File?
+<span class="nc" id="L419">        File resourceResult = new File( getOutputDirectory(), &quot;multienv-maven-plugin-resource-output&quot; );</span>
+
+<span class="nc" id="L421">        deleteDirectoryOfPreviousRunIfExist( resourceResult );</span>
+
+<span class="nc bnc" id="L423" title="All 2 branches missed.">        if ( !resourceResult.mkdirs() )</span>
+        {
+<span class="nc" id="L425">            throw new MojoExecutionException( &quot;Failure while trying to create &quot; + resourceResult.getAbsolutePath() );</span>
+        }
+
+<span class="nc" id="L428">        return resourceResult;</span>
+    }
+
+    public boolean isIncludeEmptyDirs()
+    {
+<span class="nc" id="L433">        return includeEmptyDirs;</span>
+    }
+
+    public void setIncludeEmptyDirs( boolean includeEmptyDirs )
+    {
+<span class="nc" id="L438">        this.includeEmptyDirs = includeEmptyDirs;</span>
+<span class="nc" id="L439">    }</span>
+
+    protected void filterResources( File outputDirectory )
+        throws MojoExecutionException
+    {
+
+<span class="nc" id="L445">        Resource res = new Resource();</span>
+        // TODO: Check how to prevent hard coding here?
+<span class="nc" id="L447">        res.setDirectory( getSourceDirectory().getAbsolutePath() );</span>
+<span class="nc" id="L448">        res.setFiltering( true );</span>
+        // TODO: Check if it makes sense to make this list configurable?
+<span class="nc" id="L450">        res.setIncludes( Collections.singletonList( &quot;**/*&quot; ) );</span>
+
+<span class="nc" id="L452">        List&lt;String&gt; filtersFile = new ArrayList&lt;String&gt;();</span>
+<span class="nc" id="L453">        MavenResourcesExecution execution =</span>
+<span class="nc" id="L454">            new MavenResourcesExecution( Collections.singletonList( res ), outputDirectory, getMavenProject(),</span>
+<span class="nc" id="L455">                                         getEncoding(), filtersFile, getNonFilteredFileExtensions(),</span>
+<span class="nc" id="L456">                                         getMavenSession() );</span>
+
+<span class="nc" id="L458">        execution.setEscapeString( getEscapeString() );</span>
+<span class="nc" id="L459">        execution.setSupportMultiLineFiltering( isSupportMultiLineFiltering() );</span>
+<span class="nc" id="L460">        execution.setIncludeEmptyDirs( isIncludeEmptyDirs() );</span>
+<span class="nc" id="L461">        execution.setEscapeWindowsPaths( isEscapeWindowsPaths() );</span>
+<span class="nc" id="L462">        execution.setFilterFilenames( isFileNameFiltering() );</span>
+        //// execution.setFilters( filters );
+        //
+        // // TODO: Check if we need a parameter?
+<span class="nc" id="L466">        execution.setOverwrite( true );</span>
+<span class="nc" id="L467">        execution.setDelimiters( getDelimiters(), isUseDefaultDelimiters() );</span>
+<span class="nc" id="L468">        execution.setEncoding( getEncoding() );</span>
+        //
+        // execution.setUseDefaultFilterWrappers( true );
+
+<span class="nc bnc" id="L472" title="All 2 branches missed.">        if ( getNonFilteredFileExtensions() != null )</span>
+        {
+<span class="nc" id="L474">            execution.setNonFilteredFileExtensions( getNonFilteredFileExtensions() );</span>
+        }
+
+        try
+        {
+<span class="nc" id="L479">            mavenResourcesFiltering.filterResources( execution );</span>
+        }
+<span class="nc" id="L481">        catch ( MavenFilteringException e )</span>
+        {
+<span class="nc" id="L483">            getLog().error( &quot;Failure during filtering.&quot;, e );</span>
+<span class="nc" id="L484">            throw new MojoExecutionException( &quot;Failure during filtering&quot;, e );</span>
+<span class="nc" id="L485">        }</span>
+
+<span class="nc" id="L487">    }</span>
+
+    protected void createLoggingOutput( String[] identifiedEnvironments )
+    {
+<span class="nc" id="L491">        getLog().info( &quot;&quot; );</span>
+<span class="nc" id="L492">        getLog().info( &quot;We have found &quot; + identifiedEnvironments.length + &quot; environments.&quot; );</span>
+
+<span class="nc" id="L494">        StringBuilder sb = new StringBuilder();</span>
+<span class="nc bnc" id="L495" title="All 2 branches missed.">        for ( int i = 0; i &lt; identifiedEnvironments.length; i++ )</span>
+        {
+<span class="nc bnc" id="L497" title="All 2 branches missed.">            if ( sb.length() &gt; 0 )</span>
+            {
+<span class="nc" id="L499">                sb.append( ',' );</span>
+            }
+<span class="nc" id="L501">            sb.append( identifiedEnvironments[i] );</span>
+        }
+
+<span class="nc" id="L504">        getLog().info( &quot;We have the following environments: &quot; + sb.toString() );</span>
+<span class="nc" id="L505">        getLog().info( &quot;&quot; );</span>
+<span class="nc" id="L506">    }</span>
+
+    /**
+     * This will validate the environments and will fail the build in case of errors.
+     * 
+     * @param identifiedEnvironments The environments which will be checked.
+     * @throws MojoFailureException in case of invalid environments.
+     */
+    protected void validateEnvironments( String[] identifiedEnvironments )
+        throws MojoFailureException
+    {
+<span class="fc" id="L517">        List&lt;String&gt; environmentNamesAreValid = environmentNamesAreValid( identifiedEnvironments );</span>
+<span class="fc bfc" id="L518" title="All 2 branches covered.">        if ( !environmentNamesAreValid.isEmpty() )</span>
+        {
+<span class="fc bfc" id="L520" title="All 2 branches covered.">            for ( String invalidEnv : environmentNamesAreValid )</span>
+            {
+<span class="fc" id="L522">                getLog().error( &quot;Your environment '&quot; + invalidEnv + &quot;' name contains spaces which is not allowed.&quot; );</span>
+
+<span class="fc" id="L524">            }</span>
+<span class="fc" id="L525">            throw new MojoFailureException( &quot;Your environment names contain spaces which are not allowed.&quot;</span>
+                + &quot;See previous error messages for details.&quot; );
+        }
+<span class="fc" id="L528">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.9.201702052155</span></div></body></html>
