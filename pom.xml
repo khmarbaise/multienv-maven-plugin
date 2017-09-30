@@ -10,7 +10,7 @@
 
   <groupId>com.soebes.maven.plugins</groupId>
   <artifactId>multienv-maven-plugin</artifactId>
-  <version>0.3.1-SNAPSHOT</version>
+  <version>0.3.1</version>
   <packaging>maven-plugin</packaging>
 
   <name>The MultiEnv Maven Plugin</name>
@@ -27,7 +27,7 @@
     <developerConnection>scm:git:ssh://git@github.com/khmarbaise/multienv-maven-plugin.git</developerConnection>
     <connection>scm:git:https://github.com/khmarbaise/multienv-maven-plugin.git</connection>
     <url>https://github.com/khmarbaise/multienv-maven-plugin/</url>
-    <tag>HEAD</tag>
+    <tag>multienv-maven-plugin-0.3.1</tag>
   </scm>
 
   <dependencies>
