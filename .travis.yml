@@ -5,6 +5,7 @@ sudo: false
 jdk:
   - openjdk7
   - oraclejdk8
+  - oraclejdk9
 cache:
   directories:
   - $HOME/.m2/repository
