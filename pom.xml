@@ -5,7 +5,7 @@
   <parent>
     <groupId>com.soebes.smpp</groupId>
     <artifactId>smpp-plugins</artifactId>
-    <version>3.0.0</version>
+    <version>3.0.2-SNAPSHOT</version>
   </parent>
 
   <groupId>com.soebes.maven.plugins</groupId>
@@ -93,11 +93,19 @@
   <profiles>
     <profile>
       <id>run-its</id>
+      <dependencies>
+        <dependency>
+          <groupId>org.codehaus.groovy</groupId>
+          <artifactId>groovy-all</artifactId>
+          <version>2.4.12</version>
+          <scope>test</scope>
+        </dependency>
+      </dependencies>
       <build>
         <plugins>
           <plugin>
-            <groupId>org.codehaus.gmaven</groupId>
-            <artifactId>gmaven-plugin</artifactId>
+            <groupId>org.codehaus.gmavenplus</groupId>
+            <artifactId>gmavenplus-plugin</artifactId>
           </plugin>
           <plugin>
             <groupId>org.codehaus.mojo</groupId>
