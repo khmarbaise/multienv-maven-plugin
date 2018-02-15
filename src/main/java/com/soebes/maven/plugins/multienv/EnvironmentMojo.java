@@ -126,7 +126,6 @@ public class EnvironmentMojo
             UnArchiver unArchiver = manager.getUnArchiver( archiveExt );
 
             unArchiver.setSourceFile( sourceFile );
-            unArchiver.setUseJvmChmod( true );
             unArchiver.setDestDirectory( destDirectory );
             unArchiver.setOverwrite( true );
             unArchiver.extract();
