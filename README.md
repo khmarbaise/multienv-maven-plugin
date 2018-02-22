@@ -184,7 +184,6 @@ TODO
    the name of the environment. This can be used put the name of the
    environment into the resulting files via filtering.
 
-
 [blog-multiple-environments-i]: http://blog.soebes.de/blog/2011/07/29/maven-configuration-for-multipe-environments/
 [blog-multiple-environments-ii]: http://blog.soebes.de/blog/2011/08/11/maven-configuration-for-multipe-environments-ii/
 [iterator-plugin]: http://khmarbaise.github.io/iterator-maven-plugin/
