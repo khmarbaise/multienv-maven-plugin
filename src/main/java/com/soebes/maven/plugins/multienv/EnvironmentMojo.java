@@ -59,7 +59,7 @@ public class EnvironmentMojo
 
         Artifact artifact = getMavenSession().getCurrentProject().getArtifact();
         String archiveExt = "zip";
-        if ( artifact.getFile().isFile() )
+        if ( artifact.getFile() != null && artifact.getFile().isFile() )
         {
             archiveExt = getArchiveExtensionOfTheArtifact( artifact );
             getLog().info( "Selected main artifact " + artifact.getId() + " of the project for further processing." );
