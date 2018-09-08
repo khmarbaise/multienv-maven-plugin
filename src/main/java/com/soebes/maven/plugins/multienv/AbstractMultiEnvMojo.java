@@ -8,6 +8,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.apache.maven.archiver.MavenArchiveConfiguration;
@@ -98,7 +99,7 @@ public abstract class AbstractMultiEnvMojo
     /**
      * Filter files.
      * 
-     * List of files which will be used to filter files in the directory defined in commonDir. This filterin
+     * List of files which will be used to filter files in the directory defined in commonDir tag of the plugin configuration.
      */
     @Parameter
     private List<String> filters;
@@ -162,7 +163,9 @@ public abstract class AbstractMultiEnvMojo
     private boolean supportMultiLineFiltering;
 
     /**
-     * Name of the directory where files common to all environments are stored. 
+     * Name of the directory where files common to all environments are stored. Any and all files listed in this directory are included in all environment wars.
+     * 
+     * The files are filtered using the filter files defined in filters tag of the plugin configuration.
      * 
      * If commonDir isn't configured then it is assumed that there is no common directory. i.e. there is no default value for commonDir.
      * 
@@ -534,9 +537,9 @@ public abstract class AbstractMultiEnvMojo
                     filtersFile.add(path);
                 }
             } else if ((getFilters() == null || getFilters().isEmpty()) && StringUtils.isNotBlank(commonDir)) {
-                LOG.warning("A common directory is configured but no Filters are configured on MultiEnv maven plugin. Common directory will have no effect.");
+                LOG.log(Level.WARNING, "A common directory is configured but no Filters are configured on MultiEnv maven plugin. Files in common directory will not be filtered but will be included in archives.");
             } else if ((getFilters() != null && !getFilters().isEmpty()) && StringUtils.isBlank(commonDir)) {
-                LOG.warning("Found filter configuration but no common directory configuration on MultiEnv maven plugin. MultiEnv maven filters configuration will have no effect.");
+                LOG.log(Level.SEVERE, "Found filter configuration but no common directory configuration on MultiEnv maven plugin. MultiEnv maven filters configuration will have no effect.");
             }
         } 
     }
