@@ -14,7 +14,6 @@ import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
-import org.apache.maven.shared.utils.StringUtils;
 import org.codehaus.plexus.archiver.Archiver;
 import org.codehaus.plexus.archiver.ArchiverException;
 import org.codehaus.plexus.archiver.jar.JarArchiver;
@@ -22,6 +21,7 @@ import org.codehaus.plexus.archiver.jar.ManifestException;
 import org.codehaus.plexus.archiver.manager.ArchiverManager;
 import org.codehaus.plexus.archiver.manager.NoSuchArchiverException;
 import org.codehaus.plexus.archiver.util.DefaultFileSet;
+import org.codehaus.plexus.util.StringUtils;
 
 /**
  * This goal will create separate packages out of the given environment directory.
@@ -48,6 +48,7 @@ public class ConfigurationMojo
     @Parameter( defaultValue = "jar" )
     private String archiveType;
 
+    @Override
     public void execute()
         throws MojoExecutionException, MojoFailureException
     {
@@ -58,41 +59,39 @@ public class ConfigurationMojo
             getLog().warn( "No Environment directories found." );
             return;
         }
-
-        ArrayList<String> excludedEnvs = new ArrayList<>();
-        if (StringUtils.isNotBlank(excludeEnvironments)) {
-            excludedEnvs.addAll(Arrays.asList(excludeEnvironments.split(",")));
-        }
+        
         validateEnvironments( identifiedEnvironments );
 
         createLoggingOutput( identifiedEnvironments );
 
         File resourceResult = createPluginResourceOutput();
 
-        filterResources( resourceResult );
-
         getLog().info("Excluded Environments: " + excludeEnvironments);
 
         for ( String environment : identifiedEnvironments )
         {
-            if (excludedEnvs.contains(environment)) {
-                getLog().info( " - Excluding Environment: '" + environment + "'" );
-                continue;
-            } else {
-                getLog().info( "Building Environment: '" + environment + "'" );
-            }
-
             // Check why this can happen?
             if ( environment.isEmpty() )
             {
                 getLog().warn( "The given directory '" + environment + "' is empty." );
                 continue;
             }
-
+            
+            if (shouldSkip(environment)) {
+                continue;
+            }
+            
+            filterResources( resourceResult, environment );
+            
+            File commonDirectory = null;
+            if (StringUtils.isNotBlank(getCommonDir())) {
+                commonDirectory = new File(resourceResult, getCommonDir());
+            }
+            
             try
             {
                 File targetDirectory = new File( resourceResult, environment );
-                File createArchiveFile = createArchiveFile( targetDirectory, environment, archiveType );
+                File createArchiveFile = createArchiveFile( targetDirectory, commonDirectory, environment, archiveType );
                 getProjectHelper().attachArtifact( getMavenProject(), archiveType, environment,
                                                    createArchiveFile );
             }
@@ -108,7 +107,7 @@ public class ConfigurationMojo
 
     }
 
-    private File createArchiveFile( File targetDirectory, String directory, String archiveExt )
+    private File createArchiveFile( File targetDirectory, File commonDirectory, String directory, String archiveExt )
         throws NoSuchArchiverException, IOException, MojoExecutionException
     {
         final MavenArchiver mavenArchiver = new MavenArchiver();
@@ -116,6 +115,9 @@ public class ConfigurationMojo
         mavenArchiver.setArchiver( jarArchiver );
 
         jarArchiver.addFileSet( new DefaultFileSet( targetDirectory ) );
+        if (commonDirectory != null) {
+            jarArchiver.addFileSet( new DefaultFileSet( commonDirectory ) );
+        }
         // jarArchiver.setDuplicateBehavior( duplicate );
 
         File resultArchive = getArchiveFile( getOutputDirectory(), getFinalName(), directory, archiveExt );
