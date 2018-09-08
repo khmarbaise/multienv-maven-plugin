@@ -157,6 +157,42 @@ filtered before they are packaged into the resulting artifacts. This means you
 can use things like `${project.version}` in your files or other self defined
 properties.
 
+Environment Specific Filtering
+-----------------------------------------
+
+Most of the time resource files for different environments are largely the same. They only have minor differences. In those scenarios it is quite cumborsome to parse through the entire file to find the small changes. It makes sense to put those minor differences in a properties files and move the full files to a common location. For example take logback.xml file. The file is usually only differs in server address, port and a few other things. It makes sense to move those into a properties file in each of the environment directories and move a single logback.xml file into a common location. So the directory structure looks something like this.
+
+- src/
+    - main/
+        - environments/ 			
+            - common/
+                - logback.xml
+            - dev/
+                - envspec.properties
+            - ci/
+                - envspec.properties
+            - qa/
+                - envspec.properties
+
+Now all wars will have **logback.xml** and the **logback.xml** is filtered using **envspec.properties** for each environment individually.
+
+With this there will be two steps to filtering:
+
+1. All files in **src/main/environments** are filtered using the files listed in the filter tags in build section. This includes the common directory. 
+2. Then multienv-maven filters the common files using the key/value pairs from the properties file declared in filters tag inside the configuration segment of multienv maven plugin. For this filtering to work user should declare both **commonDir** and **filters** attributes. 
+
+NOTE:
+
+    - If only commonDir is declared then all the files in commonDir will be included in the archives. 
+    - If only filters are declared and no commonDir is declared then this will have no impact on the archives.
+    - If you have no intention of using a common directory you should declare filters in the build section of the pom.
+
+Common Dir
+---------
+A common dir can be declared using **commonDir** plugin configuration attribute. Any files inside this 
+directory will be included in all the wars. This has the same effect as putting the files in **src/main/resources**.
+But this configuration attribute is specifically created to facilitate environment specific filtering. So, to avoid confusion
+use commonDir only when you need environment specific filtering.
 
 Document:
 
