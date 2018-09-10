@@ -83,15 +83,10 @@ public class ConfigurationMojo
             
             filterResources( resourceResult, environment );
             
-            File commonDirectory = null;
-            if (StringUtils.isNotBlank(getCommonDir())) {
-                commonDirectory = new File(resourceResult, getCommonDir());
-            }
-            
             try
             {
                 File targetDirectory = new File( resourceResult, environment );
-                File createArchiveFile = createArchiveFile( targetDirectory, commonDirectory, environment, archiveType );
+                File createArchiveFile = createArchiveFile( targetDirectory, environment, archiveType );
                 getProjectHelper().attachArtifact( getMavenProject(), archiveType, environment,
                                                    createArchiveFile );
             }
@@ -107,7 +102,7 @@ public class ConfigurationMojo
 
     }
 
-    private File createArchiveFile( File targetDirectory, File commonDirectory, String directory, String archiveExt )
+    private File createArchiveFile( File targetDirectory, String directory, String archiveExt )
         throws NoSuchArchiverException, IOException, MojoExecutionException
     {
         final MavenArchiver mavenArchiver = new MavenArchiver();
@@ -115,9 +110,6 @@ public class ConfigurationMojo
         mavenArchiver.setArchiver( jarArchiver );
 
         jarArchiver.addFileSet( new DefaultFileSet( targetDirectory ) );
-        if (commonDirectory != null) {
-            jarArchiver.addFileSet( new DefaultFileSet( commonDirectory ) );
-        }
         // jarArchiver.setDuplicateBehavior( duplicate );
 
         File resultArchive = getArchiveFile( getOutputDirectory(), getFinalName(), directory, archiveExt );

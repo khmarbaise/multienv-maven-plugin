@@ -173,6 +173,26 @@ public abstract class AbstractMultiEnvMojo
     @Parameter
     private String commonDir;
     
+    /**
+     * Set describe the resource target path. The path is relative
+     * to the target/classes
+     *             directory (i.e.
+     * <code>${project.build.outputDirectory}</code>).
+     *             For example, if you want that resource to appear
+     * in a specific package
+     *             (<code>org.apache.maven.messages</code>), you
+     * must specify this
+     *             element with this value:
+     * <code>org/apache/maven/messages</code>.
+     *             This is not required if you simply put the
+     * resources in that directory
+     *             structure at the source, however.
+     * 
+     * @param targetPath
+     */
+    @Parameter
+    private String targetPath;
+    
     @Component( role = MavenResourcesFiltering.class, hint = "default" )
     protected MavenResourcesFiltering mavenResourcesFiltering;
 
@@ -475,15 +495,25 @@ public abstract class AbstractMultiEnvMojo
         List<Resource> resources = new ArrayList<>();
         Resource res = new Resource();
         // TODO: Check how to prevent hard coding here?
-        res.setDirectory( getSourceDirectory().getAbsolutePath() );
-        res.setFiltering( true );
+        String baseEnvironmentResourcePath = StringUtils.join(new String[]{ getSourceDirectory().getAbsolutePath(), environment}, "/");
+        res.setDirectory(baseEnvironmentResourcePath);
+        res.setFiltering(true);
         // TODO: Check if it makes sense to make this list configurable?
-        res.setIncludes( Collections.singletonList( "**/*" ) );
+        res.setIncludes(Collections.singletonList("**/*"));
+
+        if (StringUtils.isNotBlank(targetPath)) {
+            String targetDirPath = StringUtils.join(new String[]{environment, targetPath}, "/");
+            res.setTargetPath(targetDirPath);
+        } else {
+            res.setTargetPath(environment);
+        }
 
         resources.add(res);
 
         List<String> filtersFile = new ArrayList<>();
+        
         addCommonDirResource(environment, filtersFile, resources);
+        
         MavenResourcesExecution execution =
             new MavenResourcesExecution( resources, outputDirectory, getMavenProject(),
                                          getEncoding(), filtersFile, getNonFilteredFileExtensions(),
@@ -494,6 +524,7 @@ public abstract class AbstractMultiEnvMojo
         execution.setIncludeEmptyDirs( isIncludeEmptyDirs() );
         execution.setEscapeWindowsPaths( isEscapeWindowsPaths() );
         execution.setFilterFilenames( isFileNameFiltering() );
+
         //// execution.setFilters( filters );
         //
         // // TODO: Check if we need a parameter?
@@ -526,6 +557,14 @@ public abstract class AbstractMultiEnvMojo
                 Resource common = new Resource();
 
                 common.setDirectory(StringUtils.join(new String[]{ getSourceDirectory().getAbsolutePath(), getCommonDir() }, "/"));
+                
+                if (StringUtils.isNotBlank(targetPath)) {
+                    String targetDirPath = StringUtils.join(new String[]{environment, targetPath}, "/");
+                    common.setTargetPath(targetDirPath);
+                } else {
+                    common.setTargetPath(environment);
+                }
+                
                 common.setFiltering(true);
                 common.setIncludes( Collections.singletonList( "**/*" ) );
                 resources.add(common);
@@ -565,7 +604,7 @@ public abstract class AbstractMultiEnvMojo
         if (excludedEnvs.contains(environment)) {
             getLog().info(" - Excluding Environment: '" + environment + "'");
             skip = true;
-        } else if (org.codehaus.plexus.util.StringUtils.isNotBlank(getCommonDir()) && getCommonDir().equals(environment)) {
+        } else if (StringUtils.isNotBlank(getCommonDir()) && getCommonDir().equals(environment)) {
             getLog().info(" - Excluding common directory: '" + environment + "'");
             skip = true;
         } else {
@@ -618,6 +657,10 @@ public abstract class AbstractMultiEnvMojo
 
     protected String getCommonDir() {
         return commonDir;
+    }
+
+    public String getTargetPath() {
+        return targetPath;
     }
 
 }

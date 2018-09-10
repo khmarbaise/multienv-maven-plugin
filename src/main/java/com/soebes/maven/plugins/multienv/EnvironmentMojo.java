@@ -103,16 +103,11 @@ public class EnvironmentMojo
             }
             
             filterResources( resourceResult, environment );
-
-            File commonDirectory = null;
-            if (StringUtils.isNotBlank(getCommonDir())) {
-                commonDirectory = new File(resourceResult, getCommonDir());
-            }
             
             try
             {
                 File targetDirectory = new File( resourceResult, environment );
-                File createArchiveFile = createArchiveFile( unpackDirectory, targetDirectory, commonDirectory, environment, archiveExt );
+                File createArchiveFile = createArchiveFile( unpackDirectory, targetDirectory, environment, archiveExt );
                 getProjectHelper().attachArtifact( getMavenProject(), getMavenProject().getPackaging(), environment,
                                                    createArchiveFile );
             }
@@ -153,7 +148,7 @@ public class EnvironmentMojo
         }
     }
 
-    private File createArchiveFile( File unpackDirectory, File targetDirectory, File commonDirectory, String directory, String archiveExt )
+    private File createArchiveFile( File unpackDirectory, File targetDirectory, String directory, String archiveExt )
         throws NoSuchArchiverException, IOException, MojoExecutionException
     {
         final MavenArchiver mavenArchiver = new MavenArchiver();
@@ -161,9 +156,6 @@ public class EnvironmentMojo
         mavenArchiver.setArchiver( jarArchiver );
 
         jarArchiver.addFileSet( new DefaultFileSet( targetDirectory ) );
-        if (commonDirectory != null) {
-            jarArchiver.addFileSet( new DefaultFileSet( commonDirectory ) );
-        }
         jarArchiver.addFileSet( new DefaultFileSet( unpackDirectory ) );
         // jarArchiver.setDuplicateBehavior( duplicate );
 
