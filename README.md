@@ -194,6 +194,14 @@ directory will be included in all the wars. This has the same effect as putting 
 But this configuration attribute is specifically created to facilitate environment specific filtering. So, to avoid confusion
 use commonDir only when you need environment specific filtering.
 
+Target Path
+--------
+This will set the path inside the jar to which this resources are copied to. 
+
+Ex:
+
+If **<targetPath>classes</targetPath>** will ensure that resource files from **src/main/environments** are copied into classes directory in each jar.
+
 Document:
 
  * Using filename/directory filtering ?
