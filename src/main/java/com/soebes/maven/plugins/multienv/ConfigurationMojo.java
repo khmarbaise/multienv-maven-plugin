@@ -2,9 +2,6 @@ package com.soebes.maven.plugins.multienv;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 import org.apache.maven.archiver.MavenArchiver;
 import org.apache.maven.artifact.DependencyResolutionRequiredException;
@@ -66,10 +63,10 @@ public class ConfigurationMojo
 
         File resourceResult = createPluginResourceOutput();
 
-        getLog().info("Excluded Environments: " + excludeEnvironments);
 
         for ( String environment : identifiedEnvironments )
         {
+            getLog().info( "Building Environment: '" + environment + "'" );
             // Check why this can happen?
             if ( environment.isEmpty() )
             {

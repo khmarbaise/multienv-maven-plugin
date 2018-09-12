@@ -2,8 +2,6 @@ package com.soebes.maven.plugins.multienv;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import org.apache.maven.archiver.MavenArchiver;
@@ -14,7 +12,6 @@ import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
-import org.apache.maven.shared.utils.StringUtils;
 import org.codehaus.plexus.archiver.Archiver;
 import org.codehaus.plexus.archiver.ArchiverException;
 import org.codehaus.plexus.archiver.UnArchiver;
@@ -23,6 +20,7 @@ import org.codehaus.plexus.archiver.jar.ManifestException;
 import org.codehaus.plexus.archiver.manager.ArchiverManager;
 import org.codehaus.plexus.archiver.manager.NoSuchArchiverException;
 import org.codehaus.plexus.archiver.util.DefaultFileSet;
+import org.codehaus.plexus.util.StringUtils;
 
 /**
  * This mojo will get the main artifact of the current project unpack it and use the files of the appropriate
@@ -59,8 +57,6 @@ public class EnvironmentMojo
         validateEnvironments( identifiedEnvironments );
 
         createLoggingOutput( identifiedEnvironments );
-        getLog().info("Excluded Environments: " + excludeEnvironments);
-        getLog().info("");
 
         Artifact artifact = getMavenSession().getCurrentProject().getArtifact();
         String archiveExt = "zip";
@@ -91,6 +87,7 @@ public class EnvironmentMojo
 
         for ( String environment : identifiedEnvironments )
         {
+            getLog().info( "Building Environment: '" + environment + "'" );
             // Check why this can happen?
             if ( environment.isEmpty() )
             {

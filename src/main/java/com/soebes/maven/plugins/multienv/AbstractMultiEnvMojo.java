@@ -149,13 +149,7 @@ public abstract class AbstractMultiEnvMojo
      */
     @Parameter
     private List<String> nonFilteredFileExtensions;
-        
-    /**
-     * Comma separated list of names of environments.
-     */
-    @Parameter( defaultValue = "", name = "excludeEnvironments", required = false)
-    protected String excludeEnvironments;
-    
+
     /**
      * stop searching endToken at the end of line
      */
@@ -343,14 +337,6 @@ public abstract class AbstractMultiEnvMojo
     public boolean isSupportMultiLineFiltering()
     {
         return supportMultiLineFiltering;
-    }
-
-    public String getExcludeEnvironments() {
-        return excludeEnvironments;
-    }
-
-    public void setExcludeEnvironments(String excludeEnvironments) {
-        this.excludeEnvironments = excludeEnvironments;
     }
 
     private boolean hasClassifier( String classifier )
@@ -558,9 +544,6 @@ public abstract class AbstractMultiEnvMojo
         boolean skip = false;
         
         List<String> excludedEnvs = new ArrayList<>();
-        if (StringUtils.isNotBlank(excludeEnvironments)) {
-            excludedEnvs.addAll(Arrays.asList(excludeEnvironments.split(",")));
-        }
         
         if (excludedEnvs.contains(environment)) {
             getLog().info(" - Excluding Environment: '" + environment + "'");
