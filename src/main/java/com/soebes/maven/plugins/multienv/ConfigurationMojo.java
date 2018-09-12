@@ -2,14 +2,12 @@ package com.soebes.maven.plugins.multienv;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 import org.apache.maven.archiver.MavenArchiver;
 import org.apache.maven.artifact.DependencyResolutionRequiredException;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
@@ -21,7 +19,6 @@ import org.codehaus.plexus.archiver.jar.ManifestException;
 import org.codehaus.plexus.archiver.manager.ArchiverManager;
 import org.codehaus.plexus.archiver.manager.NoSuchArchiverException;
 import org.codehaus.plexus.archiver.util.DefaultFileSet;
-import org.codehaus.plexus.util.StringUtils;
 
 /**
  * This goal will create separate packages out of the given environment directory.
@@ -41,7 +38,7 @@ public class ConfigurationMojo
 
     @Component
     private ArchiverManager manager;
-
+    
     /**
      * The kind of archive we should produce {@code zip}, {code jar} etc.
      */
@@ -81,7 +78,7 @@ public class ConfigurationMojo
                 continue;
             }
             
-            filterResources( resourceResult, environment );
+            filterResources( resourceResult, environment, false );
             
             try
             {
@@ -99,6 +96,8 @@ public class ConfigurationMojo
                 getLog().error( "IO Exception.", e );
             }
         }
+   
+        filterResourcesToTarget(identifiedEnvironments);
 
     }
 

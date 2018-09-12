@@ -11,6 +11,7 @@ import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.DependencyResolutionRequiredException;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
@@ -102,7 +103,7 @@ public class EnvironmentMojo
                 continue;
             }
             
-            filterResources( resourceResult, environment );
+            filterResources( resourceResult, environment, false );
             
             try
             {
@@ -122,7 +123,8 @@ public class EnvironmentMojo
                 throw new MojoExecutionException( "IO Exception.", e );
             }
         }
-
+   
+        filterResourcesToTarget(identifiedEnvironments);
     }
 
     private void unarchiveFile( File sourceFile, File destDirectory, String archiveExt )
