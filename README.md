@@ -202,6 +202,14 @@ Ex:
 
 If **<targetPath>classes</targetPath>** will ensure that resource files from **src/main/environments** are copied into classes directory in each jar.
 
+Individual Environment
+-------
+To copy the files from a particular environment to target/classes pass the **mem.env** user property on the command line.
+
+**Ex:** mvn clean install -Dmem.env=dev
+
+This will copy the filtered contents of **src/main/environments/dev** into **target/classes**.
+
 Document:
 
  * Using filename/directory filtering ?
