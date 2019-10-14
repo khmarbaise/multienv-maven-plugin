@@ -212,7 +212,13 @@ public abstract class AbstractMultiEnvMojo
                 return pathname.isDirectory() && pathname.exists();
             }
         } );
-
+        
+        // No folder found, return an empty array
+        if (theResultingFolders == null)
+        {
+            return new String[0];
+        }
+        
         String[] result = new String[theResultingFolders.length];
         for ( int i = 0; i < theResultingFolders.length; i++ )
         {
@@ -248,6 +254,7 @@ public abstract class AbstractMultiEnvMojo
      * @param basedir the output directory
      * @param finalName the name of the ear file
      * @param classifier an optional classifier
+     * @param archiveExt the extension of the archive
      * @return the file to generate
      */
     protected File getArchiveFile( File basedir, String finalName, String classifier, String archiveExt )
@@ -360,6 +367,7 @@ public abstract class AbstractMultiEnvMojo
      * Create the unpack directory for later unpacking of the main artifact.
      * 
      * @return The directory which has been created.
+     * @throws MojoFailureException in case of failures.
      * @throws MojoExecutionException in case of failures.
      */
     protected File createUnpackDirectory()
