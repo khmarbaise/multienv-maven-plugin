@@ -2,9 +2,6 @@ package com.soebes.maven.plugins.multienv;
 
 import java.io.File;
 import java.io.IOException;
-
-import org.apache.maven.archiver.MavenArchiver;
-import org.apache.maven.artifact.DependencyResolutionRequiredException;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Component;
@@ -13,10 +10,9 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.codehaus.plexus.archiver.Archiver;
 import org.codehaus.plexus.archiver.ArchiverException;
-import org.codehaus.plexus.archiver.jar.JarArchiver;
-import org.codehaus.plexus.archiver.jar.ManifestException;
 import org.codehaus.plexus.archiver.manager.ArchiverManager;
 import org.codehaus.plexus.archiver.manager.NoSuchArchiverException;
+import org.codehaus.plexus.archiver.tar.TarArchiver;
 import org.codehaus.plexus.archiver.util.DefaultFileSet;
 
 /**
@@ -28,22 +24,18 @@ import org.codehaus.plexus.archiver.util.DefaultFileSet;
 public class ConfigurationMojo
     extends AbstractMultiEnvMojo
 {
-
-    /**
-     * The JAR archiver needed for archiving the environments.
-     */
-    @Component( role = Archiver.class, hint = "jar" )
-    private JarArchiver jarArchiver;
-
+    private static final String EXTENSION_TAR = "tar";
+    
     @Component
     private ArchiverManager manager;
 
     /**
-     * The kind of archive we should produce {@code zip}, {code jar} etc.
+     * The kind of archive we should produce {@code zip}, {@code jar} etc.
      */
     @Parameter( defaultValue = "jar" )
     private String archiveType;
 
+    @Override
     public void execute()
         throws MojoExecutionException, MojoFailureException
     {
@@ -96,21 +88,27 @@ public class ConfigurationMojo
     private File createArchiveFile( File targetDirectory, String directory, String archiveExt )
         throws NoSuchArchiverException, IOException, MojoExecutionException
     {
-        final MavenArchiver mavenArchiver = new MavenArchiver();
-
-        mavenArchiver.setArchiver( jarArchiver );
-
-        jarArchiver.addFileSet( new DefaultFileSet( targetDirectory ) );
-        // jarArchiver.setDuplicateBehavior( duplicate );
-
         File resultArchive = getArchiveFile( getOutputDirectory(), getFinalName(), directory, archiveExt );
-
-        mavenArchiver.setOutputFile( resultArchive );
+        
+        Archiver archiver;
+        if ( archiveExt.startsWith(EXTENSION_TAR) )
+        {
+            archiver = createTarArchiver( archiveExt );
+        }
+        else
+        {
+            archiver = manager.getArchiver( resultArchive ); 
+        }
+        
+        archiver.addFileSet( new DefaultFileSet( targetDirectory ) );
+        
+        archiver.setDestFile(resultArchive);
+        
         try
         {
-            mavenArchiver.createArchive( getMavenSession(), getMavenProject(), getArchive() );
+            archiver.createArchive();
         }
-        catch ( ArchiverException | ManifestException | DependencyResolutionRequiredException e )
+        catch ( ArchiverException e )
         {
             getLog().error( e.getMessage(), e );
             throw new MojoExecutionException( e.getMessage(), e );
@@ -119,5 +117,42 @@ public class ConfigurationMojo
         return resultArchive;
 
     }
+    
+    /**
+     * Create an archiver for tar(.*) formats
+     * @param archiveExt extension of the archive
+     * @return the appropriate Archiver
+     * @throws NoSuchArchiverException
+     */
+    private Archiver createTarArchiver( String archiveExt )
+        throws NoSuchArchiverException
+    {
+        TarArchiver tarArchiver = (TarArchiver) manager.getArchiver(EXTENSION_TAR);
+        int index = archiveExt.indexOf( '.' );
+        if ( index >= 0 )
+        {
+            TarArchiver.TarCompressionMethod compressionMethod;
+            
+            String compression = archiveExt.substring( index + 1 );
+            switch (compression) {
+                case "gz":
+                    compressionMethod = TarArchiver.TarCompressionMethod.gzip;
+                    break;
+                case "bz2":
+                    compressionMethod = TarArchiver.TarCompressionMethod.bzip2;
+                    break;
+                default:
+                    compressionMethod = TarArchiver.TarCompressionMethod.valueOf(compression);
+                    break;
+            }
+            
+            if (compressionMethod == null) {
+                throw new IllegalArgumentException( "Unknown compression format: " + compression );
+            }
+            
+            tarArchiver.setCompression( compressionMethod );
+        }
 
+        return tarArchiver;
+    }
 }
