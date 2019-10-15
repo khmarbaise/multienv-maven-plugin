@@ -7,6 +7,7 @@ import org.apache.maven.archiver.MavenArchiver;
 import org.apache.maven.artifact.DependencyResolutionRequiredException;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
@@ -37,13 +38,14 @@ public class ConfigurationMojo
 
     @Component
     private ArchiverManager manager;
-
+    
     /**
      * The kind of archive we should produce {@code zip}, {code jar} etc.
      */
     @Parameter( defaultValue = "jar" )
     private String archiveType;
 
+    @Override
     public void execute()
         throws MojoExecutionException, MojoFailureException
     {
@@ -54,26 +56,30 @@ public class ConfigurationMojo
             getLog().warn( "No Environment directories found." );
             return;
         }
-
+        
         validateEnvironments( identifiedEnvironments );
 
         createLoggingOutput( identifiedEnvironments );
 
         File resourceResult = createPluginResourceOutput();
 
-        filterResources( resourceResult );
+        getLog().info("Excluded Environments: " + excludeEnvironments);
 
         for ( String environment : identifiedEnvironments )
         {
-            getLog().info( "Building Environment: '" + environment + "'" );
-
             // Check why this can happen?
             if ( environment.isEmpty() )
             {
                 getLog().warn( "The given directory '" + environment + "' is empty." );
                 continue;
             }
-
+            
+            if (shouldSkip(environment)) {
+                continue;
+            }
+            
+            filterResources( resourceResult, environment, false );
+            
             try
             {
                 File targetDirectory = new File( resourceResult, environment );
@@ -90,6 +96,8 @@ public class ConfigurationMojo
                 getLog().error( "IO Exception.", e );
             }
         }
+   
+        filterResourcesToTarget(identifiedEnvironments);
 
     }
 

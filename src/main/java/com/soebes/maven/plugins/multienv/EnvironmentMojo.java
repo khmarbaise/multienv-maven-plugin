@@ -2,6 +2,8 @@ package com.soebes.maven.plugins.multienv;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.apache.maven.archiver.MavenArchiver;
@@ -9,9 +11,11 @@ import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.DependencyResolutionRequiredException;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.shared.utils.StringUtils;
 import org.codehaus.plexus.archiver.Archiver;
 import org.codehaus.plexus.archiver.ArchiverException;
 import org.codehaus.plexus.archiver.UnArchiver;
@@ -56,6 +60,8 @@ public class EnvironmentMojo
         validateEnvironments( identifiedEnvironments );
 
         createLoggingOutput( identifiedEnvironments );
+        getLog().info("Excluded Environments: " + excludeEnvironments);
+        getLog().info("");
 
         Artifact artifact = getMavenSession().getCurrentProject().getArtifact();
         String archiveExt = "zip";
@@ -82,14 +88,10 @@ public class EnvironmentMojo
 
         File resourceResult = createPluginResourceOutput();
 
-        filterResources( resourceResult );
-
         unarchiveFile( artifact.getFile(), unpackDirectory, archiveExt );
 
         for ( String environment : identifiedEnvironments )
         {
-            getLog().info( "Building Environment: '" + environment + "'" );
-
             // Check why this can happen?
             if ( environment.isEmpty() )
             {
@@ -97,6 +99,12 @@ public class EnvironmentMojo
                 continue;
             }
 
+            if (shouldSkip(environment)) {
+                continue;
+            }
+            
+            filterResources( resourceResult, environment, false );
+            
             try
             {
                 File targetDirectory = new File( resourceResult, environment );
@@ -115,7 +123,8 @@ public class EnvironmentMojo
                 throw new MojoExecutionException( "IO Exception.", e );
             }
         }
-
+   
+        filterResourcesToTarget(identifiedEnvironments);
     }
 
     private void unarchiveFile( File sourceFile, File destDirectory, String archiveExt )

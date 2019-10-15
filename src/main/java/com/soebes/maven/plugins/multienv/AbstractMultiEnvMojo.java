@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -15,6 +16,7 @@ import org.apache.maven.model.Resource;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
@@ -22,7 +24,9 @@ import org.apache.maven.project.MavenProjectHelper;
 import org.apache.maven.shared.filtering.MavenFilteringException;
 import org.apache.maven.shared.filtering.MavenResourcesExecution;
 import org.apache.maven.shared.filtering.MavenResourcesFiltering;
+import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.util.FileUtils;
+import org.codehaus.plexus.util.StringUtils;
 
 /**
  * @author Karl-Heinz Marbaise <a href="mailto:khmarbaise@soebes.de">khmarbaise@soebes.de</a>
@@ -91,14 +95,9 @@ public abstract class AbstractMultiEnvMojo
     private boolean escapeWindowsPaths;
 
     /**
-     * The list of extra filter properties files to be used along with System properties, project properties, and filter
-     * properties files specified in the POM build/filters section, which should be used for the filtering during the
-     * current mojo execution. <br/>
-     * Normally, these will be configured from a plugin's execution section, to provide a different set of filters for a
-     * particular execution. For instance, starting in Maven 2.2.0, you have the option of configuring executions with
-     * the id's <code>default-resources</code> and <code>default-testResources</code> to supply different configurations
-     * for the two different types of resources. By supplying <code>extraFilters</code> configurations, you can separate
-     * which filters are used for which type of resource.
+     * Filter files.
+     * 
+     * List of files which will be used to filter files in the directory defined in commonDir tag of the plugin configuration.
      */
     @Parameter
     private List<String> filters;
@@ -148,13 +147,50 @@ public abstract class AbstractMultiEnvMojo
      */
     @Parameter
     private List<String> nonFilteredFileExtensions;
-
+        
+    /**
+     * Comma separated list of names of environments.
+     */
+    @Parameter( defaultValue = "", name = "excludeEnvironments", required = false)
+    protected String excludeEnvironments;
+    
     /**
      * stop searching endToken at the end of line
      */
     @Parameter( defaultValue = "false" )
     private boolean supportMultiLineFiltering;
 
+    /**
+     * Name of the directory where files common to all environments are stored. Any and all files listed in this directory are included in all environment wars.
+     * 
+     * The files are filtered using the filter files defined in filters tag of the plugin configuration.
+     * 
+     * If commonDir isn't configured then it is assumed that there is no common directory. i.e. there is no default value for commonDir.
+     * 
+     */
+    @Parameter
+    private String commonDir;
+    
+    /**
+     * Set describe the resource target path. The path is relative
+     * to the target/classes
+     *             directory (i.e.
+     * <code>${project.build.outputDirectory}</code>).
+     *             For example, if you want that resource to appear
+     * in a specific package
+     *             (<code>org.apache.maven.messages</code>), you
+     * must specify this
+     *             element with this value:
+     * <code>org/apache/maven/messages</code>.
+     *             This is not required if you simply put the
+     * resources in that directory
+     *             structure at the source, however.
+     * 
+     * @param targetPath
+     */
+    @Parameter
+    private String targetPath;
+    
     @Component( role = MavenResourcesFiltering.class, hint = "default" )
     protected MavenResourcesFiltering mavenResourcesFiltering;
 
@@ -327,6 +363,14 @@ public abstract class AbstractMultiEnvMojo
         return supportMultiLineFiltering;
     }
 
+    public String getExcludeEnvironments() {
+        return excludeEnvironments;
+    }
+
+    public void setExcludeEnvironments(String excludeEnvironments) {
+        this.excludeEnvironments = excludeEnvironments;
+    }
+
     private boolean hasClassifier( String classifier )
     {
         boolean result = false;
@@ -438,20 +482,44 @@ public abstract class AbstractMultiEnvMojo
         this.includeEmptyDirs = includeEmptyDirs;
     }
 
-    protected void filterResources( File outputDirectory )
+    /**
+     * @param outputDirectory
+     * @param environment absolute path of the environment directory.
+     * @throws org.apache.maven.plugin.MojoExecutionException
+     */
+    protected void filterResources( File outputDirectory, final String environment, boolean singleEnvironment )
         throws MojoExecutionException
     {
-
+        List<Resource> resources = new ArrayList<>();
         Resource res = new Resource();
         // TODO: Check how to prevent hard coding here?
-        res.setDirectory( getSourceDirectory().getAbsolutePath() );
-        res.setFiltering( true );
+        String baseEnvironmentResourcePath = StringUtils.join(new String[]{ getSourceDirectory().getAbsolutePath(), environment}, "/");
+        res.setDirectory(baseEnvironmentResourcePath);
+        res.setFiltering(true);
         // TODO: Check if it makes sense to make this list configurable?
-        res.setIncludes( Collections.singletonList( "**/*" ) );
+        res.setIncludes(Collections.singletonList("**/*"));
 
-        List<String> filtersFile = new ArrayList<String>();
+        if (singleEnvironment) {
+            if (StringUtils.isNotBlank(targetPath)) {
+                res.setTargetPath(targetPath);
+            }
+        } else {
+            if (StringUtils.isNotBlank(targetPath)) {
+                String targetDirPath = StringUtils.join(new String[]{environment, targetPath}, "/");
+                res.setTargetPath(targetDirPath);
+            } else {
+                res.setTargetPath(environment);
+            }
+        }
+
+        resources.add(res);
+
+        List<String> filtersFile = new ArrayList<>();
+        
+        addCommonDirResource(environment, filtersFile, resources, singleEnvironment);
+
         MavenResourcesExecution execution =
-            new MavenResourcesExecution( Collections.singletonList( res ), outputDirectory, getMavenProject(),
+            new MavenResourcesExecution( resources, outputDirectory, getMavenProject(),
                                          getEncoding(), filtersFile, getNonFilteredFileExtensions(),
                                          getMavenSession() );
 
@@ -460,6 +528,7 @@ public abstract class AbstractMultiEnvMojo
         execution.setIncludeEmptyDirs( isIncludeEmptyDirs() );
         execution.setEscapeWindowsPaths( isEscapeWindowsPaths() );
         execution.setFilterFilenames( isFileNameFiltering() );
+
         //// execution.setFilters( filters );
         //
         // // TODO: Check if we need a parameter?
@@ -485,7 +554,89 @@ public abstract class AbstractMultiEnvMojo
         }
 
     }
+    
+    protected void filterResourcesToTarget(String[] identifiedEnvironments) throws MojoExecutionException {
+        String memEnv = getMavenSession().getUserProperties().getProperty("mem.env", null);
 
+        if (StringUtils.isNotBlank(memEnv)) {
+            if (Arrays.asList(identifiedEnvironments).contains(memEnv)) {
+                File classes = new File( getOutputDirectory(), "classes" );
+                filterResources( classes, memEnv, true );
+            } else {
+                getLog().error(String.format("Environment '%s' doesn't exist", memEnv));
+            }
+        }
+    }
+
+    private void addCommonDirResource(final String environment, final List<String> filtersFile, final List<Resource> resources, boolean singleEnvironment) {
+        if (StringUtils.isNotBlank(environment)) {        
+            if (getFilters() != null && StringUtils.isNotBlank(commonDir)) {
+                Resource common = new Resource();
+
+                common.setDirectory(StringUtils.join(new String[]{ getSourceDirectory().getAbsolutePath(), getCommonDir() }, "/"));
+                
+                if (singleEnvironment) {
+                    if (StringUtils.isNotBlank(targetPath)) {
+                        common.setTargetPath(targetPath);
+                    }
+                } else {
+                    if (StringUtils.isNotBlank(targetPath)) {
+                        String targetDirPath = StringUtils.join(new String[]{environment, targetPath}, "/");
+                        common.setTargetPath(targetDirPath);
+                    } else {
+                        common.setTargetPath(environment);
+                    }
+                }
+                
+                common.setFiltering(true);
+                common.setIncludes( Collections.singletonList( "**/*" ) );
+                resources.add(common);
+
+                List<String> filtersRelativePaths = getFilters();
+
+                for (final String fileRelativePath: filtersRelativePaths) {
+                    String path = StringUtils.join(new String[]{getSourceDirectory().getPath(), environment, fileRelativePath}, "/");
+                    filtersFile.add(path);
+                }
+            } else if ((getFilters() == null || getFilters().isEmpty()) && StringUtils.isNotBlank(commonDir)) {
+                getLog().warn("A common directory is configured but no Filters are configured on MultiEnv maven plugin. Files in common directory will not be filtered but will be included in archives.");
+            } else if ((getFilters() != null && !getFilters().isEmpty()) && StringUtils.isBlank(commonDir)) {
+                getLog().error("Found filter configuration but no common directory configuration on MultiEnv maven plugin. MultiEnv maven filters configuration will have no effect.");
+            }
+        } 
+    }
+    
+    /**
+     * Returns true if this directory in src/main/environments doesn't represent an environment.
+     * 
+     * The following directories are excluded
+     * - Comma separated list of directory names enclosed within excludeEnvironments tags in plugin configuration.
+     * - Directory name enclosed in common tag in plugin configuration.
+     * 
+     * @param environment
+     * @return 
+     */
+    protected boolean shouldSkip(final String environment) {
+        boolean skip = false;
+        
+        List<String> excludedEnvs = new ArrayList<>();
+        if (StringUtils.isNotBlank(excludeEnvironments)) {
+            excludedEnvs.addAll(Arrays.asList(excludeEnvironments.split(",")));
+        }
+        
+        if (excludedEnvs.contains(environment)) {
+            getLog().info(" - Excluding Environment: '" + environment + "'");
+            skip = true;
+        } else if (StringUtils.isNotBlank(getCommonDir()) && getCommonDir().equals(environment)) {
+            getLog().info(" - Excluding common directory: '" + environment + "'");
+            skip = true;
+        } else {
+            getLog().info("Building Environment: '" + environment + "'");
+        }
+        
+        return skip;
+    }
+    
     protected void createLoggingOutput( String[] identifiedEnvironments )
     {
         getLog().info( "" );
@@ -525,6 +676,14 @@ public abstract class AbstractMultiEnvMojo
             throw new MojoFailureException( "Your environment names contain spaces which are not allowed."
                 + "See previous error messages for details." );
         }
+    }
+
+    protected String getCommonDir() {
+        return commonDir;
+    }
+
+    public String getTargetPath() {
+        return targetPath;
     }
 
 }
