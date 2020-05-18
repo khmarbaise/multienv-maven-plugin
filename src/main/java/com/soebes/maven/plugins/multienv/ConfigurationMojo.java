@@ -2,6 +2,9 @@ package com.soebes.maven.plugins.multienv;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import org.apache.maven.archiver.MavenArchiver;
 import org.apache.maven.artifact.DependencyResolutionRequiredException;
@@ -18,6 +21,7 @@ import org.codehaus.plexus.archiver.jar.ManifestException;
 import org.codehaus.plexus.archiver.manager.ArchiverManager;
 import org.codehaus.plexus.archiver.manager.NoSuchArchiverException;
 import org.codehaus.plexus.archiver.util.DefaultFileSet;
+import org.codehaus.plexus.util.StringUtils;
 
 /**
  * This goal will create separate packages out of the given environment directory.
@@ -44,6 +48,7 @@ public class ConfigurationMojo
     @Parameter( defaultValue = "jar" )
     private String archiveType;
 
+    @Override
     public void execute()
         throws MojoExecutionException, MojoFailureException
     {
@@ -54,26 +59,30 @@ public class ConfigurationMojo
             getLog().warn( "No Environment directories found." );
             return;
         }
-
+        
         validateEnvironments( identifiedEnvironments );
 
         createLoggingOutput( identifiedEnvironments );
 
         File resourceResult = createPluginResourceOutput();
 
-        filterResources( resourceResult );
+        getLog().info("Excluded Environments: " + excludeEnvironments);
 
         for ( String environment : identifiedEnvironments )
         {
-            getLog().info( "Building Environment: '" + environment + "'" );
-
             // Check why this can happen?
             if ( environment.isEmpty() )
             {
                 getLog().warn( "The given directory '" + environment + "' is empty." );
                 continue;
             }
-
+            
+            if (shouldSkip(environment)) {
+                continue;
+            }
+            
+            filterResources( resourceResult, environment );
+            
             try
             {
                 File targetDirectory = new File( resourceResult, environment );
