@@ -155,6 +155,12 @@ public abstract class AbstractMultiEnvMojo
     @Parameter( defaultValue = "false" )
     private boolean supportMultiLineFiltering;
 
+    /**
+     * Ability to disable the plugin based on property value
+     */
+    @Parameter( defaultValue = "true" )
+    boolean enabled;
+
     @Component( role = MavenResourcesFiltering.class, hint = "default" )
     protected MavenResourcesFiltering mavenResourcesFiltering;
 
