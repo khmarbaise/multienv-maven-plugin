@@ -47,6 +47,11 @@ public class ConfigurationMojo
     public void execute()
         throws MojoExecutionException, MojoFailureException
     {
+        if ( !enabled )
+        {
+            getLog().info( "Enviornment plugin is disabled, not executing it." );
+            return;
+        }
         String[] identifiedEnvironments = getTheEnvironments( getSourceDirectory() );
 
         if ( identifiedEnvironments.length == 0 )

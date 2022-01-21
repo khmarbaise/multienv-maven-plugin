@@ -143,6 +143,9 @@ to your pom file (we assume here a war file):
               <goal>environment</goal>
             </goals>
           </execution>
+          <configuration>
+            <enabled>true</enabled><!-- by default true, but you can disable it with some property for example -->
+          </configuration>
         </executions>
       </plugin>
     </plugins>
